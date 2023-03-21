@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Apps.ModernMT.Models.Responses
+namespace Apps.ModernMT.Models.LanguageDetection.Responses
 {
     public class DetectMultipleLanguagesResponse
     {

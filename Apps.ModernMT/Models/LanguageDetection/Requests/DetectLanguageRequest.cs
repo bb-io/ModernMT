@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Apps.ModernMT.Models.Requests
+namespace Apps.ModernMT.Models.LanguageDetection.Requests
 {
     public class DetectLanguageRequest
     {

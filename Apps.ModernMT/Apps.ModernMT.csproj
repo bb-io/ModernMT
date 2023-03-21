@@ -11,8 +11,4 @@
     <PackageReference Include="modernmt-dotnet" Version="1.1.1" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Models\Memories\Requests\" />
-  </ItemGroup>
-
 </Project>

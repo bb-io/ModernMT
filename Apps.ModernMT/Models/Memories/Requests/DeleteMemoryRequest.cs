@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Apps.ModernMT.Models.Requests
+namespace Apps.ModernMT.Models.Memories.Requests
 {
-    public class DetectMultipleLanguagesRequest
+    public class DeleteMemoryRequest
     {
-        public List<string> Texts { get; set; }
+        public long Id { get; set; }
     }
 }
