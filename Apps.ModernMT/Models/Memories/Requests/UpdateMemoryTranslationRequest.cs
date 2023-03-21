@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Apps.ModernMT.Models.Memories.Requests
 {
-    public class TranslationToMemoryRequest : BaseTranslationRequest
+    public class UpdateMemoryTranslationRequest : BaseTranslationRequest
     {
         public long Id { get; set; }
 

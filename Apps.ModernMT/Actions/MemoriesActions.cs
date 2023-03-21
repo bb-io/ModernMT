@@ -9,9 +9,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Apps.ModernMT.Models.Memories.Requests;
+using System.IO;
+using RestSharp;
+using Newtonsoft.Json;
+using ModernMT.Model;
+using Newtonsoft.Json.Linq;
 
 namespace Apps.ModernMT.Actions
 {
+    [ActionList]
     public class MemoriesActions
     {
         [Action("Get all memories", Description = "Get all memories")]
@@ -32,7 +38,7 @@ namespace Apps.ModernMT.Actions
 
         [Action("Get memory", Description = "Get memory by id")]
         public MemoryResponse GetMemory(AuthenticationCredentialsProvider authenticationCredentialsProvider,
-            MemoryRequest input)
+            [ActionParameter] MemoryRequest input)
         {
             var mmt = new ModernMTService(authenticationCredentialsProvider.Value);
             var memory = mmt.Memories.Get(input.Id);
@@ -45,16 +51,22 @@ namespace Apps.ModernMT.Actions
         }
 
         [Action("Create memory", Description = "Create memory")]
-        public void CreateMemory(AuthenticationCredentialsProvider authenticationCredentialsProvider,
-            CreateMemoryRequest input)
+        public MemoryResponse CreateMemory(AuthenticationCredentialsProvider authenticationCredentialsProvider,
+            [ActionParameter] CreateMemoryRequest input)
         {
             var mmt = new ModernMTService(authenticationCredentialsProvider.Value);
-            mmt.Memories.Create(input.Name, input.Description);
+            var memory = mmt.Memories.Create(input.Name, input.Description);
+            return new MemoryResponse()
+            {
+                Id = memory.Id,
+                CreatedOn = memory.CreationDate,
+                Name = memory.Name,
+            };
         }
 
         [Action("Update memory", Description = "Update memory by id")]
         public void UpdateMemory(AuthenticationCredentialsProvider authenticationCredentialsProvider,
-            UpdateMemoryRequest input)
+            [ActionParameter] UpdateMemoryRequest input)
         {
             var mmt = new ModernMTService(authenticationCredentialsProvider.Value);
             mmt.Memories.Edit(input.Id, input.Name, input.Description);
@@ -62,7 +74,7 @@ namespace Apps.ModernMT.Actions
 
         [Action("Delete memory", Description = "Delete memory by id")]
         public void DeleteMemory(AuthenticationCredentialsProvider authenticationCredentialsProvider,
-            DeleteMemoryRequest input)
+            [ActionParameter] DeleteMemoryRequest input)
         {
             var mmt = new ModernMTService(authenticationCredentialsProvider.Value);
             mmt.Memories.Delete(input.Id);
@@ -70,10 +82,73 @@ namespace Apps.ModernMT.Actions
 
         [Action("Add translation to memory", Description = "Add translation pair to memory")]
         public void AddTranslationToMemory(AuthenticationCredentialsProvider authenticationCredentialsProvider,
-            TranslationToMemoryRequest input)
+            [ActionParameter] TranslationToMemoryRequest input)
         {
             var mmt = new ModernMTService(authenticationCredentialsProvider.Value);
-            mmt.Memories.Add(input.Id, input.SourceLanguage, input.TargetLanguage, input.OriginalSentence, input.Translation);
+            mmt.Memories.Add(input.Id, input.SourceLanguage, input.TargetLanguage, input.OriginalSentence, input.Translation, input.TranslationUId);
+        }
+
+        [Action("Update memory translation pair", Description = "Update memory translation pair")]
+        public void UpdateMemoryTranslationPair(AuthenticationCredentialsProvider authenticationCredentialsProvider,
+            [ActionParameter] UpdateMemoryTranslationRequest input)
+        {
+            var mmt = new ModernMTService(authenticationCredentialsProvider.Value);
+            mmt.Memories.Replace(input.Id, input.TranslationUId, input.SourceLanguage, input.TargetLanguage,
+                input.OriginalSentence, input.Translation);
+        }
+
+        [Action("Import memory from tmx", Description = "Import memory from tmx file")]
+        public ImportMemoryResponse ImportMemory(AuthenticationCredentialsProvider authenticationCredentialsProvider,
+            [ActionParameter] ImportMemoryRequest input)
+        {
+            var result = ImportMemoryFromTmx(authenticationCredentialsProvider.Value, input.MemoryId, input.File);
+
+            return new ImportMemoryResponse()
+            {
+                ImportJobId = result.Id,
+                MemoryId = result.Memory,
+                Size = result.Size,
+                Progress = result.Progress,
+            };
+        }
+
+        [Action("Get import status", Description = "Get import status by Id")]
+        public ImportMemoryResponse GetImportStatus(AuthenticationCredentialsProvider authenticationCredentialsProvider,
+            [ActionParameter] GetImportStatusRequest input)
+        {
+            var mmt = new ModernMTService(authenticationCredentialsProvider.Value);
+            var importJob = mmt.Memories.GetImportStatus(input.ImportId);
+
+            return new ImportMemoryResponse()
+            {
+                ImportJobId = importJob.Id,
+                MemoryId = importJob.Memory,
+                Size = importJob.Size,
+                Progress = importJob.Progress,
+            };
+        }
+
+        private ImportJob ImportMemoryFromTmx(string apiKey, long memoryId, byte[] file)
+        {
+            var _httpClient = new HttpClient
+            {
+                BaseAddress = new Uri("https://api.modernmt.com")
+            };
+            _httpClient.DefaultRequestHeaders.Add("MMT-ApiKey", apiKey);
+
+            HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, $"/memories/{memoryId}/content");
+            MultipartFormDataContent multipartFormDataContent = new MultipartFormDataContent();
+            using (var stream = new MemoryStream(file))
+            {
+                multipartFormDataContent.Add(new StreamContent(stream), "tmx", "tmx");
+
+                httpRequestMessage.Content = multipartFormDataContent;
+                var result = _httpClient.Send(httpRequestMessage).Content.ReadAsStringAsync().Result;
+                JObject jObject = JObject.Parse(result);
+                JToken jToken = jObject["data"];
+                ImportJob importJob = (ImportJob)jToken.ToObject(typeof(ImportJob));
+                return importJob;
+            }
         }
     }
 }
