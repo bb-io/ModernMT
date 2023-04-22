@@ -1,6 +1,7 @@
 ﻿using Apps.ModernMT.Models.LanguageDetection.Requests;
 using Apps.ModernMT.Models.LanguageDetection.Responses;
 using Blackbird.Applications.Sdk.Common;
+using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Authentication;
 using ModernMT;
 using System;
@@ -15,10 +16,10 @@ namespace Apps.ModernMT.Actions
     public class LanguageDetectionActions
     {
         [Action("Detect language", Description = "Detect language of the text")]
-        public DetectLanguageResponse DetectLanguage(AuthenticationCredentialsProvider authenticationCredentialsProvider,
+        public DetectLanguageResponse DetectLanguage(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
             [ActionParameter] DetectLanguageRequest input)
         {
-            var mmt = new ModernMTService(authenticationCredentialsProvider.Value);
+            var mmt = new ModernMTClient(authenticationCredentialsProviders);
             var language = mmt.DetectLanguage(input.Text);
             return new DetectLanguageResponse()
             {
@@ -27,10 +28,10 @@ namespace Apps.ModernMT.Actions
         }
 
         [Action("Detect multiple languages", Description = "Detect multiple languages")]
-        public DetectMultipleLanguagesResponse DetectMultipleLanguages(AuthenticationCredentialsProvider authenticationCredentialsProvider,
+        public DetectMultipleLanguagesResponse DetectMultipleLanguages(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
             [ActionParameter] DetectMultipleLanguagesRequest input)
         {
-            var mmt = new ModernMTService(authenticationCredentialsProvider.Value);
+            var mmt = new ModernMTClient(authenticationCredentialsProviders);
             var languages = mmt.DetectLanguage(input.Texts);
             return new DetectMultipleLanguagesResponse()
             {

@@ -14,6 +14,7 @@ using RestSharp;
 using Newtonsoft.Json;
 using ModernMT.Model;
 using Newtonsoft.Json.Linq;
+using Blackbird.Applications.Sdk.Common.Actions;
 
 namespace Apps.ModernMT.Actions
 {
@@ -21,9 +22,9 @@ namespace Apps.ModernMT.Actions
     public class MemoriesActions
     {
         [Action("Get all memories", Description = "Get all memories")]
-        public AllMemoriesResponse GetAllMemories(AuthenticationCredentialsProvider authenticationCredentialsProvider)
+        public AllMemoriesResponse GetAllMemories(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders)
         {
-            var mmt = new ModernMTService(authenticationCredentialsProvider.Value);
+            var mmt = new ModernMTClient(authenticationCredentialsProviders);
             var memories = mmt.Memories.List();
             return new AllMemoriesResponse()
             {
@@ -37,10 +38,10 @@ namespace Apps.ModernMT.Actions
         }
 
         [Action("Get memory", Description = "Get memory by id")]
-        public MemoryResponse GetMemory(AuthenticationCredentialsProvider authenticationCredentialsProvider,
+        public MemoryResponse GetMemory(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
             [ActionParameter] MemoryRequest input)
         {
-            var mmt = new ModernMTService(authenticationCredentialsProvider.Value);
+            var mmt = new ModernMTClient(authenticationCredentialsProviders);
             var memory = mmt.Memories.Get(input.Id);
             return new MemoryResponse()
             {
@@ -51,10 +52,10 @@ namespace Apps.ModernMT.Actions
         }
 
         [Action("Create memory", Description = "Create memory")]
-        public MemoryResponse CreateMemory(AuthenticationCredentialsProvider authenticationCredentialsProvider,
+        public MemoryResponse CreateMemory(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
             [ActionParameter] CreateMemoryRequest input)
         {
-            var mmt = new ModernMTService(authenticationCredentialsProvider.Value);
+            var mmt = new ModernMTClient(authenticationCredentialsProviders);
             var memory = mmt.Memories.Create(input.Name, input.Description);
             return new MemoryResponse()
             {
@@ -65,43 +66,43 @@ namespace Apps.ModernMT.Actions
         }
 
         [Action("Update memory", Description = "Update memory by id")]
-        public void UpdateMemory(AuthenticationCredentialsProvider authenticationCredentialsProvider,
+        public void UpdateMemory(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
             [ActionParameter] UpdateMemoryRequest input)
         {
-            var mmt = new ModernMTService(authenticationCredentialsProvider.Value);
+            var mmt = new ModernMTClient(authenticationCredentialsProviders);
             mmt.Memories.Edit(input.Id, input.Name, input.Description);
         }
 
         [Action("Delete memory", Description = "Delete memory by id")]
-        public void DeleteMemory(AuthenticationCredentialsProvider authenticationCredentialsProvider,
+        public void DeleteMemory(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
             [ActionParameter] DeleteMemoryRequest input)
         {
-            var mmt = new ModernMTService(authenticationCredentialsProvider.Value);
+            var mmt = new ModernMTClient(authenticationCredentialsProviders);
             mmt.Memories.Delete(input.Id);
         }
 
         [Action("Add translation to memory", Description = "Add translation pair to memory")]
-        public void AddTranslationToMemory(AuthenticationCredentialsProvider authenticationCredentialsProvider,
+        public void AddTranslationToMemory(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
             [ActionParameter] TranslationToMemoryRequest input)
         {
-            var mmt = new ModernMTService(authenticationCredentialsProvider.Value);
+            var mmt = new ModernMTClient(authenticationCredentialsProviders);
             mmt.Memories.Add(input.Id, input.SourceLanguage, input.TargetLanguage, input.OriginalSentence, input.Translation, input.TranslationUId);
         }
 
         [Action("Update memory translation pair", Description = "Update memory translation pair")]
-        public void UpdateMemoryTranslationPair(AuthenticationCredentialsProvider authenticationCredentialsProvider,
+        public void UpdateMemoryTranslationPair(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
             [ActionParameter] UpdateMemoryTranslationRequest input)
         {
-            var mmt = new ModernMTService(authenticationCredentialsProvider.Value);
+            var mmt = new ModernMTClient(authenticationCredentialsProviders);
             mmt.Memories.Replace(input.Id, input.TranslationUId, input.SourceLanguage, input.TargetLanguage,
                 input.OriginalSentence, input.Translation);
         }
 
         [Action("Import memory from tmx", Description = "Import memory from tmx file")]
-        public ImportMemoryResponse ImportMemory(AuthenticationCredentialsProvider authenticationCredentialsProvider,
+        public ImportMemoryResponse ImportMemory(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
             [ActionParameter] ImportMemoryRequest input)
         {
-            var result = ImportMemoryFromTmx(authenticationCredentialsProvider.Value, input.MemoryId, input.File);
+            var result = ImportMemoryFromTmx(authenticationCredentialsProviders, input.MemoryId, input.File);
 
             return new ImportMemoryResponse()
             {
@@ -113,10 +114,10 @@ namespace Apps.ModernMT.Actions
         }
 
         [Action("Get import status", Description = "Get import status by Id")]
-        public ImportMemoryResponse GetImportStatus(AuthenticationCredentialsProvider authenticationCredentialsProvider,
+        public ImportMemoryResponse GetImportStatus(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
             [ActionParameter] GetImportStatusRequest input)
         {
-            var mmt = new ModernMTService(authenticationCredentialsProvider.Value);
+            var mmt = new ModernMTClient(authenticationCredentialsProviders);
             var importJob = mmt.Memories.GetImportStatus(input.ImportId);
 
             return new ImportMemoryResponse()
@@ -128,12 +129,13 @@ namespace Apps.ModernMT.Actions
             };
         }
 
-        private ImportJob ImportMemoryFromTmx(string apiKey, long memoryId, byte[] file)
+        private ImportJob ImportMemoryFromTmx(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, long memoryId, byte[] file)
         {
             var _httpClient = new HttpClient
             {
                 BaseAddress = new Uri("https://api.modernmt.com")
             };
+            var apiKey = authenticationCredentialsProviders.First(p => p.KeyName == "apiKey").Value;
             _httpClient.DefaultRequestHeaders.Add("MMT-ApiKey", apiKey);
 
             HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, $"/memories/{memoryId}/content");
