@@ -17,10 +17,10 @@ namespace Apps.ModernMT.Actions
     public class TranslationActions
     {
         [Action("Translate text", Description = "Translate into specified language")]
-        public TranslationResponse TranslateIntoLanguage(AuthenticationCredentialsProvider authenticationCredentialsProvider,
+        public TranslationResponse TranslateIntoLanguage(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProvider,
             [ActionParameter] TranslationRequest input)
         {
-            var mmt = new ModernMTService(authenticationCredentialsProvider.Value);
+            var mmt = new ModernMTClient(authenticationCredentialsProvider);
             var translation = mmt.Translate(input.SourceLanguage, input.TargetLanguage, input.Text);
             return new TranslationResponse()
             {
@@ -29,10 +29,10 @@ namespace Apps.ModernMT.Actions
         }
 
         [Action("Translate multiple texts", Description = "Translate multiple texts into specified language")]
-        public MultipleTranslationResponse TranslateMultiple(AuthenticationCredentialsProvider authenticationCredentialsProvider,
+        public MultipleTranslationResponse TranslateMultiple(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProvider,
             [ActionParameter] MultipleTranslationRequest input)
         {
-            var mmt = new ModernMTService(authenticationCredentialsProvider.Value);
+            var mmt = new ModernMTClient(authenticationCredentialsProvider);
             var translations = mmt.Translate(input.SourceLanguage, input.TargetLanguage, input.Texts);
             return new MultipleTranslationResponse()
             {
@@ -41,10 +41,10 @@ namespace Apps.ModernMT.Actions
         }
 
         [Action("Translate text with hints", Description = "Translate text with hints")]
-        public TranslationResponse TranslateWithHints(AuthenticationCredentialsProvider authenticationCredentialsProvider,
+        public TranslationResponse TranslateWithHints(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProvider,
             [ActionParameter] TranslationWithHintsRequest input)
         {
-            var mmt = new ModernMTService(authenticationCredentialsProvider.Value);
+            var mmt = new ModernMTClient(authenticationCredentialsProvider);
             var translation = mmt.Translate(input.SourceLanguage, input.TargetLanguage, input.Text, input.Hints.ToArray());
             return new TranslationResponse()
             {
@@ -53,10 +53,10 @@ namespace Apps.ModernMT.Actions
         }
 
         [Action("Translate text with context", Description = "Translate text with specified context")]
-        public TranslationResponse TranslateWithContext(AuthenticationCredentialsProvider authenticationCredentialsProvider,
+        public TranslationResponse TranslateWithContext(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProvider,
             [ActionParameter] TranslationWithContextRequest input)
         {
-            var mmt = new ModernMTService(authenticationCredentialsProvider.Value);
+            var mmt = new ModernMTClient(authenticationCredentialsProvider);
             var translation = mmt.Translate(input.SourceLanguage, input.TargetLanguage, input.Text, null, input.Context);
             return new TranslationResponse()
             {
@@ -65,10 +65,10 @@ namespace Apps.ModernMT.Actions
         }
 
         [Action("Get translation options", Description = "Get translation options")]
-        public TranslationOptionsResponse GetTranslationOptions(AuthenticationCredentialsProvider authenticationCredentialsProvider,
+        public TranslationOptionsResponse GetTranslationOptions(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProvider,
             [ActionParameter] TranslationOptionsRequest input)
         {
-            var mmt = new ModernMTService(authenticationCredentialsProvider.Value);
+            var mmt = new ModernMTClient(authenticationCredentialsProvider);
             var translation = mmt.Translate(input.SourceLanguage, input.TargetLanguage, input.Text, null, null, new TranslateOptions()
             {
                 AltTranslations = input.NumberOfOptions
