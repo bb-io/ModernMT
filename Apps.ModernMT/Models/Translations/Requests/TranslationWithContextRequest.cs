@@ -1,15 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Apps.ModernMT.Models.Translations.Requests;
 
-namespace Apps.ModernMT.Models.Translations.Requests
+public class TranslationWithContextRequest : TranslationRequest
 {
-    public class TranslationWithContextRequest : BaseTranslationRequest
-    {
-        public string Text { get; set; }
-
-        public string Context { get; set; }
-    }
+    public string Context { get; set; }
 }

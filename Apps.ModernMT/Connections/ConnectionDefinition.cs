@@ -1,37 +1,33 @@
-﻿using Blackbird.Applications.Sdk.Common.Authentication;
+﻿using Apps.ModernMT.Constants;
+using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Applications.Sdk.Common.Connections;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Apps.ModernMT.Connections
+namespace Apps.ModernMT.Connections;
+
+public class ConnectionDefinition : IConnectionDefinition
 {
-    public class ConnectionDefinition : IConnectionDefinition
+    public IEnumerable<ConnectionPropertyGroup> ConnectionPropertyGroups => new List<ConnectionPropertyGroup>()
     {
-        public IEnumerable<ConnectionPropertyGroup> ConnectionPropertyGroups => new List<ConnectionPropertyGroup>()
+        new()
         {
-            new ConnectionPropertyGroup
+            Name = "Developer API key",
+            AuthenticationType = ConnectionAuthenticationType.Undefined,
+            ConnectionUsage = ConnectionUsage.Actions,
+            ConnectionProperties = new List<ConnectionProperty>()
             {
-                Name = "Developer API key",
-                AuthenticationType = ConnectionAuthenticationType.Undefined,
-                ConnectionUsage = ConnectionUsage.Actions,
-                ConnectionProperties = new List<ConnectionProperty>()
-                {
-                    new ConnectionProperty("apiKey")
-                }
+                new(CredsNames.ApiKey) { DisplayName = "API Key" }
             }
-        };
-
-        public IEnumerable<AuthenticationCredentialsProvider> CreateAuthorizationCredentialsProviders(Dictionary<string, string> values)
-        {
-            var apiKey = values.First(v => v.Key == "apiKey");
-            yield return new AuthenticationCredentialsProvider(
-                AuthenticationCredentialsRequestLocation.None,
-                apiKey.Key,
-                apiKey.Value
-            );
         }
+    };
+
+    public IEnumerable<AuthenticationCredentialsProvider> CreateAuthorizationCredentialsProviders(
+        Dictionary<string, string> values)
+    {
+        var apiKey = values.First(v => v.Key == CredsNames.ApiKey);
+        yield return new AuthenticationCredentialsProvider(
+            AuthenticationCredentialsRequestLocation.None,
+            apiKey.Key,
+            apiKey.Value
+        );
     }
 }

@@ -1,15 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Apps.ModernMT.DataSourceHandlers;
+using Blackbird.Applications.Sdk.Common;
+using Blackbird.Applications.Sdk.Common.Dynamic;
 
-namespace Apps.ModernMT.Models.Memories.Requests
+namespace Apps.ModernMT.Models.Memories.Requests;
+
+public class ImportMemoryRequest
 {
-    public class ImportMemoryRequest
-    {
-        public long MemoryId { get; set; }
+    [Display("Memory")]
+    [DataSource(typeof(MemoryDataHandler))]
+    public string MemoryId { get; set; }
 
-        public byte[] File { get; set; }
-    }
+    public byte[] File { get; set; }
 }

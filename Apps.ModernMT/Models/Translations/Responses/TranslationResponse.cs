@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Blackbird.Applications.Sdk.Common;
 
-namespace Apps.ModernMT.Models.Translations.Responses
+namespace Apps.ModernMT.Models.Translations.Responses;
+
+public class TranslationResponse
 {
-    public class TranslationResponse
-    {
-        public string TranslatedText { get; set; }
-    }
+    [Display("Translated text")]
+    public string TranslatedText { get; set; }
 }

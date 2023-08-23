@@ -1,15 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Apps.ModernMT.DataSourceHandlers;
+using Blackbird.Applications.Sdk.Common;
+using Blackbird.Applications.Sdk.Common.Dynamic;
 
-namespace Apps.ModernMT.Models.Translations.Requests
+namespace Apps.ModernMT.Models.Translations.Requests;
+
+public class BaseTranslationRequest
 {
-    public class BaseTranslationRequest
-    {
-        public string SourceLanguage { get; set; }
+    [Display("Source language")]
+    [DataSource(typeof(LanguageDataHandler))]
+    public string SourceLanguage { get; set; }
 
-        public string TargetLanguage { get; set; }
-    }
+    [Display("Target language")]
+    [DataSource(typeof(LanguageDataHandler))]
+    public string TargetLanguage { get; set; }
 }

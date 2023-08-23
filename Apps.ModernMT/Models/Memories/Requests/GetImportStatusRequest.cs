@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Blackbird.Applications.Sdk.Common;
 
-namespace Apps.ModernMT.Models.Memories.Requests
+namespace Apps.ModernMT.Models.Memories.Requests;
+
+public class GetImportStatusRequest
 {
-    public class GetImportStatusRequest
-    {
-        public string ImportId { get; set; }
-    }
+    [Display("Import ID")]
+    public string ImportId { get; set; }
 }

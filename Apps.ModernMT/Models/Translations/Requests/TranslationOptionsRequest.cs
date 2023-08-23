@@ -1,16 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Blackbird.Applications.Sdk.Common;
 
-namespace Apps.ModernMT.Models.Translations.Requests
+namespace Apps.ModernMT.Models.Translations.Requests;
+
+public class TranslationOptionsRequest : TranslationRequest
 {
-    public class TranslationOptionsRequest : BaseTranslationRequest
-    {
-        public string Text { get; set; }
+    [Display("Number of options")]
+    public int? NumberOfOptions { get; set; }
+    
+    [Display("Context vector")]
+    public string? ContextVector { get; set; }
+    
+    public IEnumerable<long>? Hints { get; set; }
 
-        public int NumberOfOptions { get; set; }
-
-    }
 }

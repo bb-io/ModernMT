@@ -1,17 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Globalization;
+using Apps.ModernMT.Constants;
+using Blackbird.Applications.Sdk.Common;
+using ModernMT.Model;
 
-namespace Apps.ModernMT.Dtos
+namespace Apps.ModernMT.Dtos;
+
+public class MemoryDto
 {
-    public class MemoryDto
+    [Display("ID")]
+    public string Id { get; set; }
+    public string Name { get; set; }
+        
+    [Display("Created on")]
+    public DateTime CreatedOn { get; set; }
+
+        
+    public MemoryDto(Memory memory)
     {
-        public long Id { get; set; }
-
-        public string CreatedOn { get; set; }
-
-        public string Name { get; set; }
+        Id = memory.Id.ToString();
+        Name = memory.Name;
+        CreatedOn = DateTime.ParseExact(memory.CreationDate, Formats.MemoryDateFormat, null, DateTimeStyles.None);
     }
 }

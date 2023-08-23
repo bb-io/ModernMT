@@ -1,83 +1,102 @@
-﻿using Apps.ModernMT.Models.Translations.Requests;
+﻿using Apps.ModernMT.Api;
+using Apps.ModernMT.Models.Translations.Requests;
 using Apps.ModernMT.Models.Translations.Responses;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Authentication;
 using ModernMT.Model;
-using ModernMT;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Blackbird.Applications.Sdk.Common.Actions;
+using Blackbird.Applications.Sdk.Common.Invocation;
 
-namespace Apps.ModernMT.Actions
+namespace Apps.ModernMT.Actions;
+
+[ActionList]
+public class TranslationActions : BaseInvocable
 {
-    [ActionList]
-    public class TranslationActions
+    private IEnumerable<AuthenticationCredentialsProvider> Creds =>
+        InvocationContext.AuthenticationCredentialsProviders;
+
+    public TranslationActions(InvocationContext invocationContext) : base(invocationContext)
     {
-        [Action("Translate text", Description = "Translate into specified language")]
-        public TranslationResponse TranslateIntoLanguage(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProvider,
-            [ActionParameter] TranslationRequest input)
-        {
-            var mmt = new ModernMTClient(authenticationCredentialsProvider);
-            var translation = mmt.Translate(input.SourceLanguage, input.TargetLanguage, input.Text);
-            return new TranslationResponse()
-            {
-                TranslatedText = translation.TranslationText
-            };
-        }
+    }
 
-        [Action("Translate multiple texts", Description = "Translate multiple texts into specified language")]
-        public MultipleTranslationResponse TranslateMultiple(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProvider,
-            [ActionParameter] MultipleTranslationRequest input)
-        {
-            var mmt = new ModernMTClient(authenticationCredentialsProvider);
-            var translations = mmt.Translate(input.SourceLanguage, input.TargetLanguage, input.Texts);
-            return new MultipleTranslationResponse()
-            {
-                TranslatedTexts = translations.Select(t => t.TranslationText).ToList()
-            };
-        }
+    [Action("Translate text", Description = "Translate into specified language")]
+    public TranslationResponse TranslateIntoLanguage([ActionParameter] TranslationRequest input)
+    {
+        var client = new ModernMtClient(Creds);
+        var translation = client.Translate(input.SourceLanguage, input.TargetLanguage, input.Text);
 
-        [Action("Translate text with hints", Description = "Translate text with hints")]
-        public TranslationResponse TranslateWithHints(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProvider,
-            [ActionParameter] TranslationWithHintsRequest input)
+        return new()
         {
-            var mmt = new ModernMTClient(authenticationCredentialsProvider);
-            var translation = mmt.Translate(input.SourceLanguage, input.TargetLanguage, input.Text, input.Hints.ToArray());
-            return new TranslationResponse()
-            {
-                TranslatedText = translation.TranslationText
-            };
-        }
+            TranslatedText = translation.TranslationText
+        };
+    }
 
-        [Action("Translate text with context", Description = "Translate text with specified context")]
-        public TranslationResponse TranslateWithContext(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProvider,
-            [ActionParameter] TranslationWithContextRequest input)
-        {
-            var mmt = new ModernMTClient(authenticationCredentialsProvider);
-            var translation = mmt.Translate(input.SourceLanguage, input.TargetLanguage, input.Text, null, input.Context);
-            return new TranslationResponse()
-            {
-                TranslatedText = translation.TranslationText
-            };
-        }
+    [Action("Translate multiple texts", Description = "Translate multiple texts into specified language")]
+    public MultipleTranslationResponse TranslateMultiple(
+        [ActionParameter] MultipleTranslationRequest input)
+    {
+        var client = new ModernMtClient(Creds);
+        var translations = client.Translate(input.SourceLanguage, input.TargetLanguage, input.Texts.ToList());
 
-        [Action("Get translation options", Description = "Get translation options")]
-        public TranslationOptionsResponse GetTranslationOptions(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProvider,
-            [ActionParameter] TranslationOptionsRequest input)
+        return new()
         {
-            var mmt = new ModernMTClient(authenticationCredentialsProvider);
-            var translation = mmt.Translate(input.SourceLanguage, input.TargetLanguage, input.Text, null, null, new TranslateOptions()
+            TranslatedTexts = translations.Select(t => t.TranslationText)
+        };
+    }
+
+    [Action("Translate text with hints", Description = "Translate text with hints")]
+    public TranslationResponse TranslateWithHints(
+        [ActionParameter] TranslationWithHintsRequest input)
+    {
+        var client = new ModernMtClient(Creds);
+        var translation = client.Translate(input.SourceLanguage, input.TargetLanguage, input.Text,
+            input.Hints?.ToArray());
+        
+        return new()
+        {
+            TranslatedText = translation.TranslationText
+        };
+    }
+
+    [Action("Translate text with context", Description = "Translate text with specified context")]
+    public TranslationResponse TranslateWithContext(
+        [ActionParameter] TranslationWithContextRequest input)
+    {
+        var client = new ModernMtClient(Creds);
+        var translation = client.Translate(input.SourceLanguage, input.TargetLanguage, input.Text, null,
+            input.Context);
+        
+        return new()
+        {
+            TranslatedText = translation.TranslationText
+        };
+    }
+
+    [Action("Get translation options", Description = "Get translation options")]
+    public TranslationOptionsResponse GetTranslationOptions(
+        [ActionParameter] TranslationOptionsRequest input)
+    {
+        var client = new ModernMtClient(Creds);
+
+        var translateOptions = input.NumberOfOptions is not null
+            ? new TranslateOptions()
             {
-                AltTranslations = input.NumberOfOptions
-            });
-            return new TranslationOptionsResponse()
-            {
-                TranslatedText = translation.TranslationText,
-                AlternativeOptions = translation.AltTranslations.ToList()
-            };
-        }
+                AltTranslations = input.NumberOfOptions.Value
+            }
+            : null;
+
+        var translation = client.Translate(
+            input.SourceLanguage,
+            input.TargetLanguage,
+            input.Text,
+            input.Hints?.ToArray(),
+            input.ContextVector,
+            translateOptions);
+
+        return new()
+        {
+            TranslatedText = translation.TranslationText,
+            AlternativeOptions = translation.AltTranslations.ToList()
+        };
     }
 }

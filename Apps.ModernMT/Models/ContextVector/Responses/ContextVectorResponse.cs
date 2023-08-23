@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Blackbird.Applications.Sdk.Common;
 
-namespace Apps.ModernMT.Models.ContextVector.Responses
+namespace Apps.ModernMT.Models.ContextVector.Responses;
+
+public class ContextVectorResponse
 {
-    public class ContextVectorResponse
-    {
-        public Dictionary<string, string> ContextVectors { get; set; }
-    }
+    [Display("Context vector")]
+    public string? ContextVector { get; set; }
 }

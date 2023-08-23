@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Apps.ModernMT.Models.LanguageDetection.Requests;
 
-namespace Apps.ModernMT.Models.LanguageDetection.Requests
+public class DetectMultipleLanguagesRequest
 {
-    public class DetectMultipleLanguagesRequest
-    {
-        public List<string> Texts { get; set; }
-    }
+    public IEnumerable<string> Texts { get; set; }
 }

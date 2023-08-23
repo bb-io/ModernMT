@@ -1,17 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Apps.ModernMT.Models.Translations.Requests;
 
-namespace Apps.ModernMT.Models.ContextVector.Requests
+namespace Apps.ModernMT.Models.ContextVector.Requests;
+
+public class ContextVectorRequest : BaseTranslationRequest
 {
-    public class ContextVectorRequest
-    {
-        public string Text { get; set; }
-
-        public string SourceLanguage { get; set; }
-
-        public List<string> TargetLanguages { get; set; }
-    }
+    public string Text { get; set; }
 }

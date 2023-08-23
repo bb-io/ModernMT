@@ -1,20 +1,21 @@
-﻿using Apps.ModernMT.Models.Translations.Requests;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Apps.ModernMT.DataSourceHandlers;
+using Apps.ModernMT.Models.Translations.Requests;
+using Blackbird.Applications.Sdk.Common;
+using Blackbird.Applications.Sdk.Common.Dynamic;
 
-namespace Apps.ModernMT.Models.Memories.Requests
+namespace Apps.ModernMT.Models.Memories.Requests;
+
+public class UpdateMemoryTranslationRequest : BaseTranslationRequest
 {
-    public class UpdateMemoryTranslationRequest : BaseTranslationRequest
-    {
-        public long Id { get; set; }
+    [Display("Memory")]
+    [DataSource(typeof(MemoryDataHandler))]
+    public string MemoryId { get; set; }
 
-        public string OriginalSentence { get; set; }
+    [Display("Original sentence")]
+    public string OriginalSentence { get; set; }
 
-        public string Translation { get; set; }
+    public string Translation { get; set; }
 
-        public string TranslationUId { get; set; }
-    }
+    [Display("Translation UID")]
+    public string TranslationUId { get; set; }
 }
