@@ -1,14 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+    <PropertyGroup>
+        <TargetFramework>net7.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Blackbird.Applications.Sdk.Utils" Version="1.0.3" />
-    <PackageReference Include="modernmt-dotnet" Version="1.1.1" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Blackbird.Applications.Sdk.Common" Version="2.1.0-alpha2"/>
+        <PackageReference Include="Blackbird.Applications.Sdk.Utils" Version="1.0.3"/>
+        <PackageReference Include="modernmt-dotnet" Version="1.1.1"/>
+    </ItemGroup>
 
 </Project>

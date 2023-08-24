@@ -105,7 +105,7 @@ public class MemoriesActions : BaseInvocable
         using var client = new ModernMtRestClient();
     
         using var request = new ModernMtRestRequest($"/memories/{input.MemoryId}/content", HttpMethod.Post, Creds);
-        request.AddFile(input.File, "tmx", "tmx");
+        request.AddFile(input.File.Bytes, "tmx", "tmx");
 
         var response = await client.ExecuteWithHandling<ImportTmxResponse>(request);
         return new(response.Data);
