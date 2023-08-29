@@ -18,7 +18,7 @@ public class LanguageDetectionActions : BaseInvocable
     {
     }
         
-    [Action("Detect language", Description = "Detect language of the text")]
+    [Action("Detect language", Description = "Allows to detect the language of an input text")]
     public DetectLanguageResponse DetectLanguage([ActionParameter] DetectLanguageRequest input)
     {
         var client = new ModernMtClient(Creds);
@@ -30,7 +30,7 @@ public class LanguageDetectionActions : BaseInvocable
         };
     }
 
-    [Action("Detect multiple languages", Description = "Detect multiple languages")]
+    [Action("Detect multiple languages", Description = "Allows to detect the language of a list of texts")]
     public DetectMultipleLanguagesResponse DetectMultipleLanguages(
         [ActionParameter] DetectMultipleLanguagesRequest input)
     {

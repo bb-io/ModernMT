@@ -5,8 +5,16 @@ using Blackbird.Applications.Sdk.Common.Dynamic;
 
 namespace Apps.ModernMT.Models.Memories.Requests;
 
-public class UpdateMemoryTranslationRequest : BaseTranslationRequest
+public class UpdateMemoryTranslationRequest
 {
+    [Display("Source language")]
+    [DataSource(typeof(LanguageDataHandler))]
+    public string SourceLanguage { get; set; }
+
+    [Display("Target language")]
+    [DataSource(typeof(LanguageDataHandler))]
+    public string TargetLanguage { get; set; }
+
     [Display("Memory")]
     [DataSource(typeof(MemoryDataHandler))]
     public string MemoryId { get; set; }
@@ -18,4 +26,7 @@ public class UpdateMemoryTranslationRequest : BaseTranslationRequest
 
     [Display("Translation UID")]
     public string TranslationUId { get; set; }
+
+    [Display("Session")]
+    public string Session { get; set; }
 }

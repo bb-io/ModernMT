@@ -10,6 +10,8 @@ public class MemoryDto
     [Display("ID")]
     public string Id { get; set; }
     public string Name { get; set; }
+
+    public string Description { get; set; }
         
     [Display("Created on")]
     public DateTime CreatedOn { get; set; }
@@ -19,6 +21,7 @@ public class MemoryDto
     {
         Id = memory.Id.ToString();
         Name = memory.Name;
+        Description = memory.Description;
         CreatedOn = DateTime.ParseExact(memory.CreationDate, Formats.MemoryDateFormat, null, DateTimeStyles.None);
     }
 }

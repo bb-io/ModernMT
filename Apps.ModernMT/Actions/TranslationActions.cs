@@ -6,6 +6,7 @@ using Blackbird.Applications.Sdk.Common.Authentication;
 using ModernMT.Model;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Invocation;
+using System.Transactions;
 
 namespace Apps.ModernMT.Actions;
 
@@ -19,84 +20,41 @@ public class TranslationActions : BaseInvocable
     {
     }
 
-    [Action("Translate text", Description = "Translate into specified language")]
+    [Action("Translate", Description = "Translate into specified language")]
     public TranslationResponse TranslateIntoLanguage([ActionParameter] TranslationRequest input)
     {
         var client = new ModernMtClient(Creds);
-        var translation = client.Translate(input.SourceLanguage, input.TargetLanguage, input.Text);
-
-        return new()
-        {
-            TranslatedText = translation.TranslationText
-        };
-    }
-
-    [Action("Translate multiple texts", Description = "Translate multiple texts into specified language")]
-    public MultipleTranslationResponse TranslateMultiple(
-        [ActionParameter] MultipleTranslationRequest input)
-    {
-        var client = new ModernMtClient(Creds);
-        var translations = client.Translate(input.SourceLanguage, input.TargetLanguage, input.Texts.ToList());
-
-        return new()
-        {
-            TranslatedTexts = translations.Select(t => t.TranslationText)
-        };
-    }
-
-    [Action("Translate text with hints", Description = "Translate text with hints")]
-    public TranslationResponse TranslateWithHints(
-        [ActionParameter] TranslationWithHintsRequest input)
-    {
-        var client = new ModernMtClient(Creds);
-        var translation = client.Translate(input.SourceLanguage, input.TargetLanguage, input.Text,
-            input.Hints?.ToArray());
-        
-        return new()
-        {
-            TranslatedText = translation.TranslationText
-        };
-    }
-
-    [Action("Translate text with context", Description = "Translate text with specified context")]
-    public TranslationResponse TranslateWithContext(
-        [ActionParameter] TranslationWithContextRequest input)
-    {
-        var client = new ModernMtClient(Creds);
-        var translation = client.Translate(input.SourceLanguage, input.TargetLanguage, input.Text, null,
-            input.Context);
-        
-        return new()
-        {
-            TranslatedText = translation.TranslationText
-        };
-    }
-
-    [Action("Get translation options", Description = "Get translation options")]
-    public TranslationOptionsResponse GetTranslationOptions(
-        [ActionParameter] TranslationOptionsRequest input)
-    {
-        var client = new ModernMtClient(Creds);
-
-        var translateOptions = input.NumberOfOptions is not null
-            ? new TranslateOptions()
-            {
-                AltTranslations = input.NumberOfOptions.Value
-            }
-            : null;
-
-        var translation = client.Translate(
-            input.SourceLanguage,
-            input.TargetLanguage,
-            input.Text,
-            input.Hints?.ToArray(),
-            input.ContextVector,
-            translateOptions);
+        var translation = client.Translate(input.SourceLanguage, input.TargetLanguage, input.Text, input.Hints?.Split(',').Select(x => long.Parse(x)).ToArray(), input.Context, input.CreateOptions() );
 
         return new()
         {
             TranslatedText = translation.TranslationText,
-            AlternativeOptions = translation.AltTranslations.ToList()
+            ContextVector = translation.ContextVector,
+            Characters = translation.Characters,
+            BilledCharacters= translation.BilledCharacters,
+            DetectedLanguage= translation.DetectedLanguage,
+            Alternatives= translation.AltTranslations?.ToList(),
+        };
+    }
+
+    [Action("Translate multiple", Description = "Translate multiple texts into specified language")]
+    public MultipleTranslationResponse TranslateMultiple(
+        [ActionParameter] MultipleTranslationRequest input)
+    {
+        var client = new ModernMtClient(Creds);
+        var translations = client.Translate(input.SourceLanguage, input.TargetLanguage, input.Texts.ToList(), input.Hints?.Split(',').Select(x => long.Parse(x)).ToArray(), input.Context, input.CreateOptions());
+
+        return new()
+        {
+            Translations = translations.Select(t => new TranslationResponse
+            {
+                TranslatedText = t.TranslationText,
+                ContextVector = t.ContextVector,
+                Characters = t.Characters,
+                BilledCharacters = t.BilledCharacters,
+                DetectedLanguage = t.DetectedLanguage,
+                Alternatives = t.AltTranslations?.ToList(),
+            }),
         };
     }
 }

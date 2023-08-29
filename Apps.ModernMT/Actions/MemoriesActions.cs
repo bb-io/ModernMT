@@ -27,19 +27,7 @@ public class MemoriesActions : BaseInvocable
     {
     }
 
-    [Action("Get all memories", Description = "Get all memories")]
-    public AllMemoriesResponse GetAllMemories()
-    {
-        var client = new ModernMtClient(Creds);
-        var memories = client.Memories.List();
-
-        return new()
-        {
-            Memories = memories.Select(m => new MemoryDto(m)).ToArray()
-        };
-    }
-
-    [Action("Get memory", Description = "Get memory by id")]
+    [Action("Get memory", Description = "Get memory metadata")]
     public MemoryDto GetMemory([ActionParameter] MemoryRequest input)
     {
         var client = new ModernMtClient(Creds);
@@ -48,7 +36,7 @@ public class MemoriesActions : BaseInvocable
         return new(memory);
     }
 
-    [Action("Create memory", Description = "Create memory")]
+    [Action("Create memory", Description = "Create a new memory")]
     public MemoryDto CreateMemory([ActionParameter] CreateMemoryRequest input)
     {
         var client = new ModernMtClient(Creds);
@@ -57,21 +45,21 @@ public class MemoriesActions : BaseInvocable
         return new(memory);
     }
 
-    [Action("Update memory", Description = "Update memory by id")]
+    [Action("Update memory", Description = "Update memory metadata")]
     public void UpdateMemory([ActionParameter] UpdateMemoryRequest input)
     {
         var client = new ModernMtClient(Creds);
         client.Memories.Edit(input.MemoryId, input.Name, input.Description);
     }
 
-    [Action("Delete memory", Description = "Delete memory by id")]
+    [Action("Delete memory", Description = "Permanently delete a memory and its content. It cannot be undone")]
     public void DeleteMemory([ActionParameter] MemoryRequest input)
     {
         var client = new ModernMtClient(Creds);
         client.Memories.Delete(input.MemoryId);
     }
 
-    [Action("Add translation to memory", Description = "Add translation pair to memory")]
+    [Action("Add translation to memory", Description = "Add a sentence-translation pair to the given memory")]
     public void AddTranslationToMemory([ActionParameter] TranslationToMemoryRequest input)
     {
         var client = new ModernMtClient(Creds);
@@ -82,10 +70,11 @@ public class MemoriesActions : BaseInvocable
             input.TargetLanguage,
             input.OriginalSentence,
             input.Translation,
-            input.TranslationUId);
+            input.TranslationUId,
+            input.Session);
     }
 
-    [Action("Update memory translation pair", Description = "Update memory translation pair")]
+    [Action("Update memory translation pair", Description = "Update a sentence-translation pair in the given memory")]
     public void UpdateMemoryTranslationPair([ActionParameter] UpdateMemoryTranslationRequest input)
     {
         var client = new ModernMtClient(Creds);
@@ -96,27 +85,27 @@ public class MemoriesActions : BaseInvocable
             input.SourceLanguage,
             input.TargetLanguage,
             input.OriginalSentence,
-            input.Translation);
+            input.Translation,
+            input.Session);
     }
 
     [Action("Import memory from tmx", Description = "Import memory from tmx file")]
-    public async Task<ImportMemoryResponse> ImportMemory([ActionParameter] ImportMemoryRequest input)
+    public async Task ImportMemory([ActionParameter] ImportMemoryRequest input)
     {
         using var client = new ModernMtRestClient();
-    
+        var mtClient = new ModernMtClient(Creds);
+
         using var request = new ModernMtRestRequest($"/memories/{input.MemoryId}/content", HttpMethod.Post, Creds);
         request.AddFile(input.File.Bytes, "tmx", "tmx");
 
         var response = await client.ExecuteWithHandling<ImportTmxResponse>(request);
-        return new(response.Data);
-    }
 
-    [Action("Get import status", Description = "Get import status by Id")]
-    public ImportMemoryResponse GetImportStatus([ActionParameter] GetImportStatusRequest input)
-    {
-        var client = new ModernMtClient(Creds);
-        var importJob = client.Memories.GetImportStatus(input.ImportId);
+        ImportJob job = response.Data;
 
-        return new(importJob);
+        while (job.Progress < 1)
+        {
+            await Task.Delay(5000);
+            job = mtClient.Memories.GetImportStatus(job.Id);
+        }
     }
 }

@@ -4,6 +4,6 @@ namespace Apps.ModernMT.Models.Translations.Responses;
 
 public class MultipleTranslationResponse
 {
-    [Display("Translated texts")]
-    public IEnumerable<string> TranslatedTexts { get; set; }
+    [Display("Translations")]
+    public IEnumerable<TranslationResponse> Translations { get; set; }
 }

@@ -18,12 +18,13 @@ public class ContextVectorActions : BaseInvocable
     {
     }
 
-    [Action("Get context vector from text", Description = "Get context vector from text")]
+    [Action("Get context vector from text", Description = "Analyze a given content, compare it with the memories content, and automatically create a context vector which can be used in the attempt to maximize the translation quality")]
     public ContextVectorResponse GetContextVectorFromText([ActionParameter] ContextVectorRequest input)
     {
         var client = new ModernMtClient(Creds);
-        var contextVector = client
-            .GetContextVector(input.SourceLanguage, input.TargetLanguage, input.Text);
+        var contextVector = input.Limit == null ?
+            client.GetContextVector(input.SourceLanguage, input.TargetLanguage, input.Text, input.Hints?.Split(',').Select(x => long.Parse(x)).ToArray()) :
+            client.GetContextVector(input.SourceLanguage, input.TargetLanguage, input.Text, input.Hints?.Split(',').Select(x => long.Parse(x)).ToArray(), (int) input.Limit) ;
             
         return new()
         {
