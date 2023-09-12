@@ -4,6 +4,8 @@ Blackbird is the new automation backbone for the language technology industry. B
 
 ## Introduction
 
+<!-- begin docs -->
+
 ModernMT is a more human machine translation. It improves from corrections and adapts to the context of the document. Its features include translation using weighted translation memories, hints and glossaries.
 
 ## Before setting up
@@ -60,3 +62,5 @@ This example show a simple bird that translates incoming Slack messages, perform
 ## Feedback
 
 Feedback to our implementation of ModernMT is always very welcome. Reach out to us using the [established channels](https://www.blackbird.io/), or create an issue.
+
+<!-- end docs -->
