@@ -1,30 +1,30 @@
 ﻿using Apps.ModernMT.Api;
 using Apps.ModernMT.Api.Http;
-using Apps.ModernMT.Constants;
 using Apps.ModernMT.Dtos;
-using Apps.ModernMT.Models;
-using Apps.ModernMT.Models.Error.Response;
 using Apps.ModernMT.Models.Memories.Responses;
 using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Applications.Sdk.Common;
 using Apps.ModernMT.Models.Memories.Requests;
 using ModernMT.Model;
-using Newtonsoft.Json.Linq;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Invocation;
-using Blackbird.Applications.Sdk.Utils.Extensions.Sdk;
-using Newtonsoft.Json;
+using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
+using Blackbird.Applications.Sdk.Utils.Extensions.Files;
 
 namespace Apps.ModernMT.Actions;
 
 [ActionList]
 public class MemoriesActions : BaseInvocable
 {
+    private readonly IFileManagementClient _fileManagementClient;
+    
     private IEnumerable<AuthenticationCredentialsProvider> Creds =>
         InvocationContext.AuthenticationCredentialsProviders;
 
-    public MemoriesActions(InvocationContext invocationContext) : base(invocationContext)
+    public MemoriesActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient) 
+        : base(invocationContext)
     {
+        _fileManagementClient = fileManagementClient;
     }
 
     [Action("Get memory", Description = "Get memory metadata")]
@@ -96,7 +96,9 @@ public class MemoriesActions : BaseInvocable
         var mtClient = new ModernMtClient(Creds);
 
         using var request = new ModernMtRestRequest($"/memories/{input.MemoryId}/content", HttpMethod.Post, Creds);
-        request.AddFile(input.File.Bytes, "tmx", "tmx");
+        var fileStream = await _fileManagementClient.DownloadAsync(input.File);
+        var fileBytes = await fileStream.GetByteData();
+        request.AddFile(fileBytes, "tmx", "tmx");
 
         var response = await client.ExecuteWithHandling<ImportTmxResponse>(request);
 
