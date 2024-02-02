@@ -1,4 +1,5 @@
-using Apps.ModernMT.Api;
+using System.Text;
+using Apps.ModernMT.Api.Http;
 using Apps.ModernMT.Extensions;
 using Apps.ModernMT.Models.Memories.Requests;
 using Blackbird.Applications.Sdk.Common;
@@ -27,21 +28,21 @@ public class GlossaryActions : BaseInvocable
     [Action("Import glossary", Description = "Import glossary from a file")]
     public async Task ImportGlossary([ActionParameter] ImportMemoryRequest input)
     {
-        var client = new ModernMtClient(Creds);
+        using var client = new ModernMtRestClient();
 
         await using var glossaryStream = await _fileManagementClient.DownloadAsync(input.File);
         var blackbirdGlossary = await glossaryStream.ConvertFromTBX();
         var csv = blackbirdGlossary.ToModernMtCsv();
 
-        var filePath = $"{input.MemoryId}.csv";
-        try
-        {
-            await File.WriteAllTextAsync(filePath, csv);
-            client.Memories.ImportGlossary(input.MemoryId, File.OpenRead(filePath), "equivalent");
-        }
-        finally
-        {
-            File.Delete(filePath);
-        }
+        using var request = new ModernMtRestRequest($"/memories/{input.MemoryId}/glossary", HttpMethod.Post, Creds);
+
+        var fileStream = new MemoryStream(Encoding.UTF8.GetBytes(csv));
+
+        var multipartFormDataContent = new MultipartFormDataContent();
+        multipartFormDataContent.Add(new StreamContent(fileStream), "csv", $"{input.MemoryId}.csv");
+        multipartFormDataContent.Add(new StringContent("equivalent"), "type");
+        request.Content = multipartFormDataContent;
+
+        await client.ExecuteWithHandling(request);
     }
 }
