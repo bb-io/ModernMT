@@ -10,9 +10,9 @@ public static class GlossariesExtensions
         var result = new StringBuilder();
 
         var languages = glossary.ConceptEntries
-                .SelectMany(x => x.LanguageSections.Select(x => x.LanguageCode))
-                .Distinct()
-                .ToList();
+            .SelectMany(x => x.LanguageSections.Select(x => x.LanguageCode))
+            .Distinct()
+            .ToList();
         result.Append("tuid,")
             .Append(string.Join(',', languages))
             .Append(Environment.NewLine);
@@ -24,7 +24,8 @@ public static class GlossariesExtensions
             languages.ForEach(lang =>
             {
                 var section = entry.LanguageSections.FirstOrDefault(x => x.LanguageCode == lang);
-                result.Append(section?.Terms.First().Term ?? string.Empty);
+                var term = section?.Terms.First().Term.Replace(",", string.Empty);
+                result.Append(term ?? string.Empty);
 
                 if (languages.IndexOf(lang) + 1 == languages.Count)
                 {
