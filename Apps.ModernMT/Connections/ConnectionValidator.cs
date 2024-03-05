@@ -4,7 +4,6 @@ using Apps.ModernMT.Models.LanguageDetection.Requests;
 using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Applications.Sdk.Common.Connections;
 using Blackbird.Applications.Sdk.Common.Invocation;
-using RestSharp;
 
 namespace Apps.ModernMT.Connections
 {

@@ -3,10 +3,8 @@ using Apps.ModernMT.Models.Translations.Requests;
 using Apps.ModernMT.Models.Translations.Responses;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Authentication;
-using ModernMT.Model;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Invocation;
-using System.Transactions;
 
 namespace Apps.ModernMT.Actions;
 
