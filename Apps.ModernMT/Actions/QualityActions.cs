@@ -44,8 +44,6 @@ namespace Apps.ModernMT.Actions
         public async Task<EstimateXliffResponse> EstimateXliff([ActionParameter] EstimateXliffRequest Input)
         {
             var xliffDocument = await LoadAndParseXliffDocument(Input.File);
-            var src = Input.SourceLanguage ?? xliffDocument.SourceLanguage;
-            var tgt = Input.TargetLanguage ?? xliffDocument.TargetLanguage;
             var results = new Dictionary<string, double>();
 
             var file = await _fileManagementClient.DownloadAsync(Input.File);
@@ -60,7 +58,7 @@ namespace Apps.ModernMT.Actions
             foreach (var transunit in xliffDocument.TranslationUnits)
             {
                 var client = new ModernMtClient(Creds);
-                var response = client.Qe(src, tgt, transunit.Source, transunit.Target);
+                var response = client.Qe(Input.SourceLanguage, Input.TargetLanguage, transunit.Source, transunit.Target);
                 results.Add(transunit.Id, response.Score);
 
                 fileContent = Regex.Replace(fileContent, @"(<trans-unit id=""" + transunit.Id + @""")", @"${1} extradata=""" + response.Score + @"""");

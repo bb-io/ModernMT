@@ -35,6 +35,18 @@ Before you can connect you need to make sure that:
 ### Quality estimation
 
 - **Estimate quality** takes a source and translation and returns a score between 0 and 1 indicating the machine translation quality.
+- **Estimate XLIFF quality** provides quality estimation data for all segments in an XLIFF 1.2 file. Mandatory input data include the translated XLIFF file, source and target language values. As an output, an Average Score is provided, which is the average of the quality scores for all segments in the file. Additionally, all translation units get appeneded with their individual score which is added to the `extradata` attribute in the XLIFF file. Optionally, you can add _Threshold_, _New Target State_ and _Condition_ input parameters to the Blackbird action to change the target state value of segments meeting the desired criteria.
+
+
+Examples:
+
+Setting the optional input values as shown in the image below will result in all segments with a score above 0.9 to have their target state values updated to “final”.
+
+![Optional inputs 1](image/README/MMTOptionalInput1.png)
+
+Similarly, the setup below will cause all the segments with a quality score below or equal to 0.6 to have their target state value changed to “needs-review-translation”.
+
+![Optional inputs 2](image/README/MMTOptionalInput2.png)
 
 ### Language detection
 
