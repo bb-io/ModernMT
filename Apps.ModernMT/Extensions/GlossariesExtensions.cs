@@ -13,14 +13,20 @@ public static class GlossariesExtensions
             .SelectMany(x => x.LanguageSections.Select(x => x.LanguageCode))
             .Distinct()
             .ToList();
+        // Note: this may not be a correct conversion for ModernMT language codes.
+        var modernMtlanguageCodes = languages.Select(x => x.Split('-').First());
         result.Append("tuid,")
-            .Append(string.Join(',', languages))
+            .Append(string.Join(',', modernMtlanguageCodes))
             .Append(Environment.NewLine);
 
         var counter = 1;
         glossary.ConceptEntries.ToList().ForEach(entry =>
         {
+            if (entry.LanguageSections.Count() <= 1)
+                return;
+
             result.Append($"{counter++},");
+
             languages.ForEach(lang =>
             {
                 var section = entry.LanguageSections.FirstOrDefault(x => x.LanguageCode == lang);
