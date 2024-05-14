@@ -23,7 +23,7 @@ public class TranslationActions : BaseInvocable
     private readonly IFileManagementClient _fileManagementClient;
 
     public TranslationActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient) : base(
-       invocationContext)
+        invocationContext)
     {
         _fileManagementClient = fileManagementClient;
     }
@@ -32,16 +32,17 @@ public class TranslationActions : BaseInvocable
     public TranslationResponse TranslateIntoLanguage([ActionParameter] TranslationRequest input)
     {
         var client = new ModernMtClient(Creds);
-        var translation = client.Translate(input.SourceLanguage, input.TargetLanguage, input.Text, input.Hints?.Split(',').Select(x => long.Parse(x)).ToArray(), input.Context, input.CreateOptions() );
+        var translation = client.Translate(input.SourceLanguage, input.TargetLanguage, input.Text,
+            input.Hints?.Select(long.Parse).ToArray(), input.Context, input.CreateOptions());
 
         return new()
         {
             TranslatedText = translation.TranslationText,
             ContextVector = translation.ContextVector,
             Characters = translation.Characters,
-            BilledCharacters= translation.BilledCharacters,
-            DetectedLanguage= translation.DetectedLanguage,
-            Alternatives= translation.AltTranslations?.ToList(),
+            BilledCharacters = translation.BilledCharacters,
+            DetectedLanguage = translation.DetectedLanguage,
+            Alternatives = translation.AltTranslations?.ToList(),
         };
     }
 
@@ -50,7 +51,8 @@ public class TranslationActions : BaseInvocable
         [ActionParameter] MultipleTranslationRequest input)
     {
         var client = new ModernMtClient(Creds);
-        var translations = client.Translate(input.SourceLanguage, input.TargetLanguage, input.Texts.ToList(), input.Hints?.Split(',').Select(x => long.Parse(x)).ToArray(), input.Context, input.CreateOptions());
+        var translations = client.Translate(input.SourceLanguage, input.TargetLanguage, input.Texts.ToList(),
+            input.Hints?.Select(long.Parse).ToArray(), input.Context, input.CreateOptions());
 
         return new()
         {
@@ -67,7 +69,8 @@ public class TranslationActions : BaseInvocable
     }
 
     [Action("Translate Xliff", Description = "Translate an XLIFF 1.2 document into specified language")]
-    public async Task<XliffTranslationResponse> TranslateXliff([ActionParameter] TranslateXliffRequest input, [ActionParameter,
+    public async Task<XliffTranslationResponse> TranslateXliff([ActionParameter] TranslateXliffRequest input,
+        [ActionParameter,
          Display("Bucket size",
              Description = "Specify the number of translation units to be processed at once. Default value: 15")]
         int? bucketSize)
@@ -81,7 +84,8 @@ public class TranslationActions : BaseInvocable
         foreach (var batch in sources.Batch(bucketSize.GetValueOrDefault(15)))
         {
             var client = new ModernMtClient(Creds);
-            var translations = client.Translate(input.SourceLanguage, input.TargetLanguage, batch.ToList(), input.Hints?.Split(',').Select(x => long.Parse(x)).ToArray(), input.Context, input.CreateOptions());
+            var translations = client.Translate(input.SourceLanguage, input.TargetLanguage, batch.ToList(),
+                input.Hints?.Select(long.Parse).ToArray(), input.Context, input.CreateOptions());
             allTranslatedTexts.AddRange(translations.Select(x => x.TranslationText));
             BilledChars += translations.Sum(x => x.BilledCharacters);
         }
@@ -89,8 +93,9 @@ public class TranslationActions : BaseInvocable
         var updatedDocument = UpdateXliffDocumentWithTranslations(xliffDocument, allTranslatedTexts);
         var fileReference = await UploadUpdatedDocument(updatedDocument, input.File);
 
-        return new XliffTranslationResponse { TranslatedFile = fileReference};
+        return new XliffTranslationResponse { TranslatedFile = fileReference };
     }
+
     private async Task<XliffDocument> LoadAndParseXliffDocument(FileReference inputFile)
     {
         var stream = await _fileManagementClient.DownloadAsync(inputFile);

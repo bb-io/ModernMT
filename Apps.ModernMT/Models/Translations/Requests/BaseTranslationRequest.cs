@@ -16,44 +16,35 @@ public class BaseTranslationRequest
     public string TargetLanguage { get; set; }
 
 
-    [Display("Context vector")]
-    public string? Context { get; set; }
+    [Display("Context vector")] public string? Context { get; set; }
 
-    // Todo, change into multiple strings when we support dynamic array input
     [Display("Hint")]
     [DataSource(typeof(MemoryDataHandler))]
-    public string? Hints { get; set; }
+    public IEnumerable<string>? Hints { get; set; }
 
     [Display("Format")]
     [DataSource(typeof(FormatDataHandler))]
     public string? Format { get; set; }
 
-    // Todo, change into multiple strings whenwe support dynamic array input
-    [Display("Glossary")]
+    [Display("Glossaries")]
     [DataSource(typeof(MemoryDataHandler))]
-    public string? Glossaries { get; set; }
+    public IEnumerable<string>? Glossaries { get; set; }
 
-    [Display("Ignore glossary case")]
-    public bool? IgnoreGlossaryCase { get; set; }
+    [Display("Ignore glossary case")] public bool? IgnoreGlossaryCase { get; set; }
 
     [Display("Priority")]
     [DataSource(typeof(PriorityDataHandler))]
     public string? Priority { get; set; }
 
-    [Display("Multiline")]
-    public bool? Multiline { get; set; }
+    [Display("Multiline")] public bool? Multiline { get; set; }
 
-    [Display("Timeout")]
-    public int? Timeout { get; set; }
+    [Display("Timeout")] public int? Timeout { get; set; }
 
-    [Display("Alternative translations")]
-    public int? AltTranslations { get; set; }
+    [Display("Alternative translations")] public int? AltTranslations { get; set; }
 
-    [Display("Mask profanities")]
-    public bool? MaskProfanities { get; set; }
+    [Display("Mask profanities")] public bool? MaskProfanities { get; set; }
 
-    [Display("Session")]
-    public string? Session { get; set; }
+    [Display("Session")] public string? Session { get; set; }
 
     public TranslateOptions CreateOptions()
     {
@@ -69,7 +60,8 @@ public class BaseTranslationRequest
             MaskProfanities = MaskProfanities ?? false,
         };
 
-        options.SetGlossaries(new List<string> { Glossaries });
+        if (Glossaries is not null)
+            options.SetGlossaries(Glossaries.ToList());
 
         return options;
     }
