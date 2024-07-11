@@ -68,7 +68,7 @@ public class TranslationActions : BaseInvocable
         };
     }
 
-    [Action("Translate Xliff", Description = "Translate an XLIFF 1.2 document into specified language")]
+    [Action("Translate XLIFF", Description = "Translate an XLIFF 1.2 document into specified language")]
     public async Task<XliffTranslationResponse> TranslateXliff([ActionParameter] TranslateXliffRequest input,
         [ActionParameter,
          Display("Bucket size",
