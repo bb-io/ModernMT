@@ -11,6 +11,7 @@ using Blackbird.Xliff.Utils.Models;
 using Blackbird.Xliff.Utils;
 using System.Xml.Linq;
 using MoreLinq;
+using ModernMT;
 
 namespace Apps.ModernMT.Actions;
 
@@ -75,10 +76,11 @@ public class TranslationActions : BaseInvocable
              Description = "Specify the number of translation units to be processed at once. Default value: 15")]
         int? bucketSize)
     {
-        var xliffDocument = await LoadAndParseXliffDocument(input.File);
+        var fileStream = await _fileManagementClient.DownloadAsync(input.File);
+        var xliffDocument = Extensions.XliffUtils.ParseXLIFF(fileStream);
         var sources = xliffDocument.TranslationUnits.Select(x => x.Source).ToList();
 
-        List<string> allTranslatedTexts = new List<string>();
+        var results = new List<string>();
         int BilledChars = 0;
 
         foreach (var batch in sources.Batch(bucketSize.GetValueOrDefault(15)))
@@ -86,46 +88,16 @@ public class TranslationActions : BaseInvocable
             var client = new ModernMtClient(Creds);
             var translations = client.Translate(input.SourceLanguage, input.TargetLanguage, batch.ToList(),
                 input.Hints?.Select(long.Parse).ToArray(), input.Context, input.CreateOptions());
-            allTranslatedTexts.AddRange(translations.Select(x => x.TranslationText));
+            results.AddRange(translations.Select(x => x.TranslationText));
             BilledChars += translations.Sum(x => x.BilledCharacters);
         }
 
-        var updatedDocument = UpdateXliffDocumentWithTranslations(xliffDocument, allTranslatedTexts);
-        var fileReference = await UploadUpdatedDocument(updatedDocument, input.File);
-
-        return new XliffTranslationResponse { TranslatedFile = fileReference };
+        var originalFile = await _fileManagementClient.DownloadAsync(input.File);
+        var updatedFile = Extensions.XliffUtils.UpdateOriginalFile(originalFile, results);
+        var finalFile = await _fileManagementClient.UploadAsync(updatedFile, input.File.ContentType, input.File.Name);
+       
+        return new XliffTranslationResponse { TranslatedFile = finalFile, BilledCharacters = BilledChars };
     }
 
-    private async Task<XliffDocument> LoadAndParseXliffDocument(FileReference inputFile)
-    {
-        var stream = await _fileManagementClient.DownloadAsync(inputFile);
-        var memoryStream = new MemoryStream();
-        await stream.CopyToAsync(memoryStream);
-        memoryStream.Position = 0;
-
-        var xliffDoc = XDocument.Load(memoryStream);
-        return XliffDocument.FromXDocument(xliffDoc,
-            new XliffConfig { RemoveWhitespaces = true, CopyAttributes = true });
-    }
-
-    private async Task<FileReference> UploadUpdatedDocument(XDocument xliffDocument, FileReference originalFile)
-    {
-        var outputMemoryStream = new MemoryStream();
-        xliffDocument.Save(outputMemoryStream);
-        outputMemoryStream.Position = 0;
-
-        string contentType = originalFile.ContentType ?? "application/xml";
-        return await _fileManagementClient.UploadAsync(outputMemoryStream, contentType, originalFile.Name);
-    }
-
-    private XDocument UpdateXliffDocumentWithTranslations(XliffDocument xliffDocument, List<string> translatedTexts)
-    {
-        var updatedUnits = xliffDocument.TranslationUnits.Zip(translatedTexts, (unit, translation) =>
-        {
-            unit.Target = translation;
-            return unit;
-        }).ToList();
-
-        return xliffDocument.UpdateTranslationUnits(updatedUnits);
-    }
+  
 }
