@@ -31,6 +31,7 @@ Before you can connect you need to make sure that:
 
 - **Translate** translates a segment into a given language. It can optionally take arguments for glossaries, contexts, hints, and more. See the [ModernMT documentation](https://www.modernmt.com/api/#translate-text) for all the options.
 - **Translate multiple** behaves the same as translate, but with multiple segments rather than just one.
+- **Translate XLIFF** Translate an XLIFF 1.2 document into a specified language.
 
 ### Quality estimation
 
