@@ -69,18 +69,20 @@ public class TranslationActions : BaseInvocable
         };
     }
 
-    [Action("Translate XLIFF", Description = "Translate an XLIFF 1.2 document into specified language")]
+    [Action("Translate Xliff", Description = "Translate an XLIFF 1.2 document into specified language")]
     public async Task<XliffTranslationResponse> TranslateXliff([ActionParameter] TranslateXliffRequest input,
         [ActionParameter,
          Display("Bucket size",
              Description = "Specify the number of translation units to be processed at once. Default value: 15")]
         int? bucketSize)
     {
+
         var fileStream = await _fileManagementClient.DownloadAsync(input.File);
         var xliffDocument = Extensions.XliffUtils.ParseXLIFF(fileStream);
         var sources = xliffDocument.TranslationUnits.Select(x => x.Source).ToList();
 
         var results = new List<string>();
+
         int BilledChars = 0;
 
         foreach (var batch in sources.Batch(bucketSize.GetValueOrDefault(15)))
@@ -88,6 +90,7 @@ public class TranslationActions : BaseInvocable
             var client = new ModernMtClient(Creds);
             var translations = client.Translate(input.SourceLanguage, input.TargetLanguage, batch.ToList(),
                 input.Hints?.Select(long.Parse).ToArray(), input.Context, input.CreateOptions());
+
             results.AddRange(translations.Select(x => x.TranslationText));
             BilledChars += translations.Sum(x => x.BilledCharacters);
         }
@@ -98,6 +101,4 @@ public class TranslationActions : BaseInvocable
        
         return new XliffTranslationResponse { TranslatedFile = finalFile, BilledCharacters = BilledChars };
     }
-
-  
 }
