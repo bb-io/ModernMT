@@ -1,4 +1,5 @@
 ﻿using Blackbird.Applications.Sdk.Common.Dictionaries;
+using Blackbird.Applications.Sdk.Common.Dynamic;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Apps.ModernMT.DataSourceHandlers
 {
-    public class XliffStateDataHandler : IStaticDataSourceHandler
+    public class XliffStateDataHandler : IStaticDataSourceItemHandler
     {
         protected Dictionary<string, string> EnumValues => new()
         {
@@ -23,9 +24,9 @@ namespace Apps.ModernMT.DataSourceHandlers
             { "translated", "translated"}
         };
 
-        public Dictionary<string, string> GetData()
+        IEnumerable<DataSourceItem> IStaticDataSourceItemHandler.GetData()
         {
-            return EnumValues;
+            return EnumValues.Select(x => new DataSourceItem(x.Key, x.Value));
         }
     }
 }

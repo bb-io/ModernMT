@@ -6,7 +6,7 @@ using Blackbird.Applications.Sdk.Common.Invocation;
 
 namespace Apps.ModernMT.DataSourceHandlers;
 
-public class MemoryDataHandler : BaseInvocable, IDataSourceHandler
+public class MemoryDataHandler : BaseInvocable, IDataSourceItemHandler
 {
     private IEnumerable<AuthenticationCredentialsProvider> Creds =>
         InvocationContext.AuthenticationCredentialsProviders;
@@ -15,7 +15,7 @@ public class MemoryDataHandler : BaseInvocable, IDataSourceHandler
     {
     }
 
-    public Dictionary<string, string> GetData(DataSourceContext context)
+    IEnumerable<DataSourceItem> IDataSourceItemHandler.GetData(DataSourceContext context)
     {
         var client = new ModernMtClient(Creds);
         var memories = client.Memories.List();
@@ -24,6 +24,6 @@ public class MemoryDataHandler : BaseInvocable, IDataSourceHandler
             .Where(x => context.SearchString is null ||
                         x.Name.Contains(context.SearchString, StringComparison.OrdinalIgnoreCase))
             .Take(20)
-            .ToDictionary(x => x.Id.ToString(), x => x.Name);
+            .Select(x => new DataSourceItem(x.Id.ToString(), x.Name));
     }
 }

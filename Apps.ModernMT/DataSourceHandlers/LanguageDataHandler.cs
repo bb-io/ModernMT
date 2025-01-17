@@ -1,10 +1,12 @@
-﻿using Blackbird.Applications.Sdk.Utils.Sdk.DataSourceHandlers;
+﻿using Blackbird.Applications.Sdk.Common.Dictionaries;
+using Blackbird.Applications.Sdk.Common.Dynamic;
+using Blackbird.Applications.Sdk.Utils.Sdk.DataSourceHandlers;
 
 namespace Apps.ModernMT.DataSourceHandlers;
 
-public class LanguageDataHandler : EnumDataHandler
+public class LanguageDataHandler : IStaticDataSourceItemHandler
 {
-    protected override Dictionary<string, string> EnumValues => new Dictionary<string, string>()
+    protected Dictionary<string, string> EnumValues => new Dictionary<string, string>()
     {
         {"Acehnese", "ace"},
         {"Afrikaans", "af"},
@@ -207,4 +209,9 @@ public class LanguageDataHandler : EnumDataHandler
         {"Yoruba", "yo"},
         {"Zulu", "zu"},
     }.ToDictionary(x => x.Value, x => x.Key);
+
+    public IEnumerable<DataSourceItem> GetData()
+    {
+        return EnumValues.Select(x => new DataSourceItem(x.Key, x.Value));
+    }
 }
