@@ -12,7 +12,6 @@ public class ConnectionDefinition : IConnectionDefinition
         {
             Name = "Developer API key",
             AuthenticationType = ConnectionAuthenticationType.Undefined,
-            ConnectionUsage = ConnectionUsage.Actions,
             ConnectionProperties = new List<ConnectionProperty>()
             {
                 new(CredsNames.ApiKey) { DisplayName = "API Key" }
@@ -25,7 +24,6 @@ public class ConnectionDefinition : IConnectionDefinition
     {
         var apiKey = values.First(v => v.Key == CredsNames.ApiKey);
         yield return new AuthenticationCredentialsProvider(
-            AuthenticationCredentialsRequestLocation.None,
             apiKey.Key,
             apiKey.Value
         );

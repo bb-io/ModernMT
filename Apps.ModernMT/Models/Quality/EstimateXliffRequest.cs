@@ -11,11 +11,11 @@ namespace Apps.ModernMT.Models.Quality
         public FileReference File { get; set; }
 
         [Display("Source Language")]
-        [DataSource(typeof(LanguageDataHandler))]
+        [StaticDataSource(typeof(LanguageDataHandler))]
         public string SourceLanguage { get; set; }
 
         [Display("Target Language")]
-        [DataSource(typeof(LanguageDataHandler))]
+        [StaticDataSource(typeof(LanguageDataHandler))]
         public string TargetLanguage { get; set; }
 
         public float? Threshold { get; set; }

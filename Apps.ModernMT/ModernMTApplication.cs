@@ -10,12 +10,6 @@ public class ModernMtApplication : IApplication, ICategoryProvider
         get => [ApplicationCategory.MachineTranslationAndMtqe];
         set { }
     }
-    
-    public string Name
-    {
-        get => "Modern MT";
-        set { }
-    }
 
     public T GetInstance<T>()
     {

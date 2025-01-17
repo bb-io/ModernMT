@@ -1,5 +1,6 @@
 ﻿using Apps.ModernMT.DataSourceHandlers;
 using Blackbird.Applications.Sdk.Common;
+using Blackbird.Applications.Sdk.Common.Dictionaries;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 using ModernMT.Model;
 
@@ -8,11 +9,11 @@ namespace Apps.ModernMT.Models.Translations.Requests;
 public class BaseTranslationRequest
 {
     [Display("Source language")]
-    [DataSource(typeof(LanguageDataHandler))]
+    [StaticDataSource(typeof(LanguageDataHandler))]
     public string SourceLanguage { get; set; }
 
     [Display("Target language")]
-    [DataSource(typeof(LanguageDataHandler))]
+    [StaticDataSource(typeof(LanguageDataHandler))]
     public string TargetLanguage { get; set; }
 
 
@@ -23,7 +24,7 @@ public class BaseTranslationRequest
     public IEnumerable<string>? Hints { get; set; }
 
     [Display("Format")]
-    [DataSource(typeof(FormatDataHandler))]
+    [StaticDataSource(typeof(FormatDataHandler))]
     public string? Format { get; set; }
 
     [Display("Glossaries")]
@@ -33,7 +34,7 @@ public class BaseTranslationRequest
     [Display("Ignore glossary case")] public bool? IgnoreGlossaryCase { get; set; }
 
     [Display("Priority")]
-    [DataSource(typeof(PriorityDataHandler))]
+    [StaticDataSource(typeof(PriorityDataHandler))]
     public string? Priority { get; set; }
 
     [Display("Multiline")] public bool? Multiline { get; set; }

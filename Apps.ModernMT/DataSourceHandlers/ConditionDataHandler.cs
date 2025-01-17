@@ -1,4 +1,5 @@
 ﻿using Blackbird.Applications.Sdk.Common.Dictionaries;
+using Blackbird.Applications.Sdk.Common.Dynamic;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Apps.ModernMT.DataSourceHandlers
 {
-    public class ConditionDataHandler : IStaticDataSourceHandler
+    public class ConditionDataHandler : IStaticDataSourceItemHandler
     {
         protected Dictionary<string, string> EnumValues => new()
         {
@@ -18,9 +19,9 @@ namespace Apps.ModernMT.DataSourceHandlers
             { "<=", "Score is below or equal threshold" }
         };
 
-        public Dictionary<string, string> GetData()
+        IEnumerable<DataSourceItem> IStaticDataSourceItemHandler.GetData()
         {
-            return EnumValues;
+            return EnumValues.Select(x => new DataSourceItem(x.Key, x.Value));
         }
     }
 }
