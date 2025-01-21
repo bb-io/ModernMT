@@ -14,7 +14,7 @@ public class ConnectionDefinition : IConnectionDefinition
             AuthenticationType = ConnectionAuthenticationType.Undefined,
             ConnectionProperties = new List<ConnectionProperty>()
             {
-                new(CredsNames.ApiKey) { DisplayName = "API Key" }
+                new(CredsNames.ApiKey) { DisplayName = "API Key", Sensitive = true }
             }
         }
     };

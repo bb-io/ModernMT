@@ -12,6 +12,7 @@ using Blackbird.Xliff.Utils;
 using System.Xml.Linq;
 using MoreLinq;
 using ModernMT;
+using Blackbird.Applications.Sdk.Common.Exceptions;
 
 namespace Apps.ModernMT.Actions;
 
@@ -32,6 +33,16 @@ public class TranslationActions : BaseInvocable
     [Action("Translate", Description = "Translate into specified language")]
     public TranslationResponse TranslateIntoLanguage([ActionParameter] TranslationRequest input)
     {
+        if (string.IsNullOrEmpty(input.Text))
+        {
+            throw new PluginMisconfigurationException("The input did not contain any text to translate. Please make sure the text is not empty.");
+        }
+
+        if (input.SourceLanguage == input.TargetLanguage)
+        {
+            throw new PluginMisconfigurationException("The source language and target language are equal. This is not allowed. Please change the source or target language.");
+        }
+
         var client = new ModernMtClient(Creds);
         var translation = client.Translate(input.SourceLanguage, input.TargetLanguage, input.Text,
             input.Hints?.Select(long.Parse).ToArray(), input.Context, input.CreateOptions());
@@ -51,6 +62,11 @@ public class TranslationActions : BaseInvocable
     public MultipleTranslationResponse TranslateMultiple(
         [ActionParameter] MultipleTranslationRequest input)
     {
+        if (input.SourceLanguage == input.TargetLanguage)
+        {
+            throw new PluginMisconfigurationException("The source language and target language are equal. This is not allowed. Please change the source or target language.");
+        }
+
         var client = new ModernMtClient(Creds);
         var translations = client.Translate(input.SourceLanguage, input.TargetLanguage, input.Texts.ToList(),
             input.Hints?.Select(long.Parse).ToArray(), input.Context, input.CreateOptions());
@@ -76,6 +92,10 @@ public class TranslationActions : BaseInvocable
              Description = "Specify the number of translation units to be processed at once. Default value: 15")]
         int? bucketSize)
     {
+        if (input.SourceLanguage == input.TargetLanguage)
+        {
+            throw new PluginMisconfigurationException("The source language and target language are equal. This is not allowed. Please change the source or target language.");
+        }
 
         var fileStream = await _fileManagementClient.DownloadAsync(input.File);
         var xliffDocument = Extensions.XliffUtils.ParseXLIFF(fileStream);
