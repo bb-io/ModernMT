@@ -1,6 +1,7 @@
 ﻿using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,5 +29,10 @@ public class TestBase
         };
 
         FileManager = new FileManager(folderLocation);
+    }
+
+    public static void PrintResult<T>(T result)
+    {
+        System.Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
     }
 }

@@ -1,15 +1,14 @@
 using Apps.ModernMT.Connections;
 using Blackbird.Applications.Sdk.Common.Authentication;
-using DocumentFormat.OpenXml.Drawing;
 using Tests.ModernMT.Base;
 
 namespace Tests.ModernMT;
 
 [TestClass]
-public class ValidatorTests : TestBase
+public class ConnectionValidatorTests : TestBase
 {
     [TestMethod]
-    public async Task ValidatesCorrectConnection()
+    public async Task ValidateConnection_CorrectCredentials_ReturnsValidResult()
     {
         var validator = new ConnectionValidator();
 
@@ -18,7 +17,7 @@ public class ValidatorTests : TestBase
     }
 
     [TestMethod]
-    public async Task DoesNotValidateIncorrectConnection()
+    public async Task ValidateConnection_IncorrectCredentials_ReturnsInvalidResult()
     {
         var validator = new ConnectionValidator();
 

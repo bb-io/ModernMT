@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+  <file original="document.txt" source-language="nl" target-language="en" datatype="plaintext">
+    <body>
+      <trans-unit id="1">
+        <source>Hallo! Dit is een tekst in mijn eigen taal.</source>
+        <target></target>
+      </trans-unit>
+      <trans-unit id="2">
+        <source>We gebruiken dit bestand om de vertaalfunctionaliteit te testen.</source>
+        <target></target>
+      </trans-unit>
+      <trans-unit id="3">
+        <source>Modern MT is een vertaalservice die we willen integreren.</source>
+        <target></target>
+      </trans-unit>
+      <trans-unit id="4">
+        <source>Deze test zorgt ervoor dat de XLIFF-vertaling goed werkt.</source>
+        <target></target>
+      </trans-unit>
+      <trans-unit id="5">
+        <source>Dit is de laatste zin in dit testbestand.</source>
+        <target></target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>
