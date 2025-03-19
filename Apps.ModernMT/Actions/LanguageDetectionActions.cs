@@ -4,6 +4,7 @@ using Apps.ModernMT.Models.LanguageDetection.Responses;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Authentication;
+using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 
 namespace Apps.ModernMT.Actions;
@@ -21,6 +22,11 @@ public class LanguageDetectionActions : BaseInvocable
     [Action("Detect language", Description = "Allows to detect the language of an input text")]
     public DetectLanguageResponse DetectLanguage([ActionParameter] DetectLanguageRequest input)
     {
+        if (string.IsNullOrEmpty(input.Text))
+        {
+            throw new PluginMisconfigurationException("The text can not be empty, please fill the 'Text' field and make sure it has content");
+        }
+
         var client = new ModernMtClient(Creds);
         var language = client.DetectLanguage(input.Text);
             

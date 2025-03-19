@@ -363,3 +363,4 @@ MigrationBackup/
 FodyWeavers.xsd
 /ConsoleApp1
 /.idea
+/Tests.ModernMT/appsettings.json
