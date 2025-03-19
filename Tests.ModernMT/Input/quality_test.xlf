@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+  <file original="document.txt" source-language="nl" target-language="en" datatype="plaintext">
+    <body>
+      <trans-unit id="1">
+        <source>Hallo! Dit is een tekst in het Nederlands.</source>
+        <target>Hello! This is a text in Dutch.</target>
+      </trans-unit>
+      <trans-unit id="2">
+        <source>Ik woon in Nederland met mijn familie.</source>
+        <target>I live in the Netherlands with my family.</target>
+      </trans-unit>
+      <trans-unit id="3">
+        <source>Vandaag is het mooi weer in Amsterdam.</source>
+        <target>Today the weather is beautiful in Amsterdam.</target>
+      </trans-unit>
+      <trans-unit id="4">
+        <source>Deze vertaling is van hoge kwaliteit.</source>
+        <target>This translation is of high quality.</target>
+      </trans-unit>
+      <trans-unit id="5">
+        <source>Deze vertaling bevat een kleine fout.</source>
+        <target>This translation has small mistakes.</target>
+      </trans-unit>
+      <trans-unit id="6">
+        <source>Deze vertaling is helemaal incorrect.</source>
+        <target>The moon is made of green cheese.</target>
+      </trans-unit>
+      <trans-unit id="7">
+        <source>We gebruiken dit bestand voor kwaliteitstests.</source>
+        <target>We use this file for quality testing.</target>
+      </trans-unit>
+      <trans-unit id="8">
+        <source>De kwaliteitsschatting moet werken met dit bestand.</source>
+        <target>The quality estimation should work with this file.</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

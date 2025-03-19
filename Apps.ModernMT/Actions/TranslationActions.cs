@@ -2,34 +2,19 @@
 using Apps.ModernMT.Models.Translations.Requests;
 using Apps.ModernMT.Models.Translations.Responses;
 using Blackbird.Applications.Sdk.Common;
-using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
-using Blackbird.Applications.Sdk.Common.Files;
-using Blackbird.Xliff.Utils.Models;
-using Blackbird.Xliff.Utils;
-using System.Xml.Linq;
 using MoreLinq;
-using ModernMT;
 using Blackbird.Applications.Sdk.Common.Exceptions;
+using Apps.ModernMT.Actions.Base;
 
 namespace Apps.ModernMT.Actions;
 
 [ActionList]
-public class TranslationActions : BaseInvocable
+public class TranslationActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient) 
+    : BaseActions(invocationContext, fileManagementClient)
 {
-    private IEnumerable<AuthenticationCredentialsProvider> Creds =>
-        InvocationContext.AuthenticationCredentialsProviders;
-
-    private readonly IFileManagementClient _fileManagementClient;
-
-    public TranslationActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient) : base(
-        invocationContext)
-    {
-        _fileManagementClient = fileManagementClient;
-    }
-
     [Action("Translate", Description = "Translate into specified language")]
     public TranslationResponse TranslateIntoLanguage([ActionParameter] TranslationRequest input)
     {
@@ -43,7 +28,7 @@ public class TranslationActions : BaseInvocable
             throw new PluginMisconfigurationException("The source language and target language are equal. This is not allowed. Please change the source or target language.");
         }
 
-        var client = new ModernMtClient(Creds);
+        var client = new ModernMtClient(Credentials);
         var translation = client.Translate(input.SourceLanguage, input.TargetLanguage, input.Text,
             input.Hints?.Select(long.Parse).ToArray(), input.Context, input.CreateOptions());
 
@@ -67,7 +52,7 @@ public class TranslationActions : BaseInvocable
             throw new PluginMisconfigurationException("The source language and target language are equal. This is not allowed. Please change the source or target language.");
         }
 
-        var client = new ModernMtClient(Creds);
+        var client = new ModernMtClient(Credentials);
         var translations = client.Translate(input.SourceLanguage, input.TargetLanguage, input.Texts.ToList(),
             input.Hints?.Select(long.Parse).ToArray(), input.Context, input.CreateOptions());
 
@@ -85,40 +70,55 @@ public class TranslationActions : BaseInvocable
         };
     }
 
-    [Action("Translate Xliff", Description = "Translate an XLIFF 1.2 document into specified language")]
-    public async Task<XliffTranslationResponse> TranslateXliff([ActionParameter] TranslateXliffRequest input,
-        [ActionParameter,
-         Display("Bucket size",
-             Description = "Specify the number of translation units to be processed at once. Default value: 15")]
-        int? bucketSize)
+    [Action("Translate XLIFF", Description = "Translate an XLIFF 1.2 document into specified language")]
+    public async Task<XliffTranslationResponse> TranslateXliff(
+        [ActionParameter] TranslateXliffRequest input,
+        [ActionParameter, Display("Bucket size", Description = "Specify the number of translation units to be processed at once. Default value: 15")]
+        int? bucketSize = 15)
     {
         if (input.SourceLanguage == input.TargetLanguage)
         {
             throw new PluginMisconfigurationException("The source language and target language are equal. This is not allowed. Please change the source or target language.");
         }
 
-        var fileStream = await _fileManagementClient.DownloadAsync(input.File);
-        var xliffDocument = Extensions.XliffUtils.ParseXLIFF(fileStream);
+        var xliffDocument = await GetXliffDocumentFromFile(input.File);
         var sources = xliffDocument.TranslationUnits.Select(x => x.Source).ToList();
-
         var results = new List<string>();
-
-        int BilledChars = 0;
-
-        foreach (var batch in sources.Batch(bucketSize.GetValueOrDefault(15)))
+        var billedChars = 0;
+        
+        var batchSize = bucketSize ?? 15;
+        var client = new ModernMtClient(Credentials);
+        
+        foreach (var batch in sources.Batch(batchSize))
         {
-            var client = new ModernMtClient(Creds);
-            var translations = client.Translate(input.SourceLanguage, input.TargetLanguage, batch.ToList(),
-                input.Hints?.Select(long.Parse).ToArray(), input.Context, input.CreateOptions());
+            var translations = client.Translate(
+                input.SourceLanguage, 
+                input.TargetLanguage, 
+                batch.ToList(),
+                input.Hints?.Select(long.Parse).ToArray(), 
+                input.Context, 
+                input.CreateOptions());
 
             results.AddRange(translations.Select(x => x.TranslationText));
-            BilledChars += translations.Sum(x => x.BilledCharacters);
+            billedChars += translations.Sum(x => x.BilledCharacters);
         }
 
-        var originalFile = await _fileManagementClient.DownloadAsync(input.File);
-        var updatedFile = Extensions.XliffUtils.UpdateOriginalFile(originalFile, results);
-        var finalFile = await _fileManagementClient.UploadAsync(updatedFile, input.File.ContentType, input.File.Name);
-       
-        return new XliffTranslationResponse { TranslatedFile = finalFile, BilledCharacters = BilledChars };
+        if (results.Count != sources.Count)
+        {
+            throw new Exception($"The number of translations does not match the number of source texts. Expected: {sources.Count}, Actual: {results.Count}");
+        }
+
+        for (int i = 0; i < xliffDocument.TranslationUnits.Count; i++)
+        {
+            xliffDocument.TranslationUnits[i].Target = results[i];
+        }
+        
+        var updatedFile = xliffDocument.ToStream();
+        var finalFile = await fileManagementClient.UploadAsync(updatedFile, input.File.ContentType, input.File.Name);
+        return new XliffTranslationResponse 
+        { 
+            TranslatedFile = finalFile, 
+            BilledCharacters = billedChars 
+        };
     }
 }

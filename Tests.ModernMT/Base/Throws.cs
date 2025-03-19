@@ -55,12 +55,32 @@ public static class Throws
         try
         {
             action();
+            Assert.Fail("Expected PluginMisconfigurationException was not thrown");
         }
-        catch (PluginMisconfigurationException ex)
+        catch (PluginMisconfigurationException)
         {
-            Console.WriteLine(ex.Message);
-            return;
+            // Expected exception
         }
-        Assert.Fail();
+        catch (Exception ex)
+        {
+            Assert.Fail($"Expected PluginMisconfigurationException but got {ex.GetType().Name}");
+        }
+    }
+
+    public static async Task MisconfigurationExceptionAsync(Func<Task> action)
+    {
+        try
+        {
+            await action();
+            Assert.Fail("Expected PluginMisconfigurationException was not thrown");
+        }
+        catch (PluginMisconfigurationException)
+        {
+            // Expected exception
+        }
+        catch (Exception ex)
+        {
+            Assert.Fail($"Expected PluginMisconfigurationException but got {ex.GetType().Name}");
+        }
     }
 }

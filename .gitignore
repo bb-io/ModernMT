@@ -362,4 +362,6 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 /ConsoleApp1
+/.idea
 /Tests.ModernMT/appsettings.json
+/Tests.ModernMT/Output
