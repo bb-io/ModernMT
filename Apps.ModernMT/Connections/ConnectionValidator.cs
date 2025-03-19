@@ -9,8 +9,7 @@ namespace Apps.ModernMT.Connections
 {
     public class ConnectionValidator : IConnectionValidator
     {
-        public async ValueTask<ConnectionValidationResponse> ValidateConnection(
-       IEnumerable<AuthenticationCredentialsProvider> authProviders, CancellationToken cancellationToken)
+        public async ValueTask<ConnectionValidationResponse> ValidateConnection(IEnumerable<AuthenticationCredentialsProvider> authProviders, CancellationToken cancellationToken)
         {
             var actions = new LanguageDetectionActions(new InvocationContext() { AuthenticationCredentialsProviders = authProviders });
             try

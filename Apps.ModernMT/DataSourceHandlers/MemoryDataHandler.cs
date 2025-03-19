@@ -6,14 +6,10 @@ using Blackbird.Applications.Sdk.Common.Invocation;
 
 namespace Apps.ModernMT.DataSourceHandlers;
 
-public class MemoryDataHandler : BaseInvocable, IDataSourceItemHandler
+public class MemoryDataHandler(InvocationContext invocationContext) : BaseInvocable(invocationContext), IDataSourceItemHandler
 {
     private IEnumerable<AuthenticationCredentialsProvider> Creds =>
         InvocationContext.AuthenticationCredentialsProviders;
-
-    public MemoryDataHandler(InvocationContext invocationContext) : base(invocationContext)
-    {
-    }
 
     IEnumerable<DataSourceItem> IDataSourceItemHandler.GetData(DataSourceContext context)
     {

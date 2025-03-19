@@ -1,22 +1,20 @@
 ﻿using Blackbird.Applications.Sdk.Common.Dictionaries;
 using Blackbird.Applications.Sdk.Common.Dynamic;
-using Blackbird.Applications.Sdk.Utils.Sdk.DataSourceHandlers;
 
-namespace Apps.ModernMT.DataSourceHandlers
+namespace Apps.ModernMT.DataSourceHandlers;
+
+public class FormatDataHandler : IStaticDataSourceItemHandler
 {
-    public class FormatDataHandler : IStaticDataSourceItemHandler
+    protected Dictionary<string, string> EnumValues => new()
     {
-        protected Dictionary<string, string> EnumValues => new()
-        {
-            { "text/plain", "Plain text" },
-            { "text/xml", "XML" },
-            { "text/html", "HTML" },
-            { "application/xliff+xml", "XLIFF" }
-        };
+        { "text/plain", "Plain text" },
+        { "text/xml", "XML" },
+        { "text/html", "HTML" },
+        { "application/xliff+xml", "XLIFF" }
+    };
 
-        public IEnumerable<DataSourceItem> GetData()
-        {
-            return EnumValues.Select(x => new DataSourceItem(x.Key, x.Value));
-        }
+    public IEnumerable<DataSourceItem> GetData()
+    {
+        return EnumValues.Select(x => new DataSourceItem(x.Key, x.Value));
     }
 }

@@ -5,23 +5,14 @@ using ModernMT.Model;
 
 namespace Apps.ModernMT.Dtos;
 
-public class MemoryDto
+public class MemoryDto(Memory memory)
 {
     [Display("ID")]
-    public string Id { get; set; }
-    public string Name { get; set; }
+    public string Id { get; set; } = memory.Id.ToString();
+    public string Name { get; set; } = memory.Name;
 
-    public string Description { get; set; }
-        
+    public string Description { get; set; } = memory.Description;
+
     [Display("Created on")]
-    public DateTime CreatedOn { get; set; }
-
-        
-    public MemoryDto(Memory memory)
-    {
-        Id = memory.Id.ToString();
-        Name = memory.Name;
-        Description = memory.Description;
-        CreatedOn = DateTime.ParseExact(memory.CreationDate, Formats.MemoryDateFormat, null, DateTimeStyles.None);
-    }
+    public DateTime CreatedOn { get; set; } = DateTime.ParseExact(memory.CreationDate, Formats.MemoryDateFormat, null, DateTimeStyles.None);
 }
