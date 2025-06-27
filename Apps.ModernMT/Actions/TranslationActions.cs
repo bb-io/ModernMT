@@ -12,6 +12,7 @@ using Blackbird.Filters.Transformations;
 using Blackbird.Filters.Enums;
 using Blackbird.Filters.Extensions;
 using System.Collections;
+using Blackbird.Applications.SDK.Blueprints;
 
 namespace Apps.ModernMT.Actions;
 
@@ -19,6 +20,7 @@ namespace Apps.ModernMT.Actions;
 public class TranslationActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient) 
     : BaseActions(invocationContext, fileManagementClient)
 {
+    [BlueprintActionDefinition(BlueprintAction.TranslateText)]
     [Action("Translate text", Description = "Translate a small piece of text into the specified language")]
     public TranslationResponse TranslateIntoLanguage([ActionParameter] TranslationRequest input)
     {
@@ -47,6 +49,7 @@ public class TranslationActions(InvocationContext invocationContext, IFileManage
         };
     }
 
+    [BlueprintActionDefinition(BlueprintAction.TranslateFile)]
     [Action("Translate", Description = "Translate file content retrieved from a CMS or file storage. The output can be used in compatible actions")]
     public async Task<XliffTranslationResponse> TranslateFile([ActionParameter] TranslateFileRequest input)
     {
