@@ -17,6 +17,17 @@ public class TranslationActionsTests : TestBase
 
         var result = actions.TranslateIntoLanguage(new TranslationRequest { Text = ExampleText, SourceLanguage = "nl", TargetLanguage = "en" });
         Assert.IsTrue(result.TranslatedText != null);
+        Console.WriteLine(result.TranslatedText);
+    }
+
+    [TestMethod]
+    public void TranslateIntoLanguage_NoSource_ReturnsTranslation()
+    {
+        var actions = new TranslationActions(InvocationContext, FileManager);
+
+        var result = actions.TranslateIntoLanguage(new TranslationRequest { Text = ExampleText, TargetLanguage = "en" });
+        Assert.IsTrue(result.TranslatedText != null);
+        Console.WriteLine(result.TranslatedText);
     }
 
     [TestMethod]
@@ -50,7 +61,7 @@ public class TranslationActionsTests : TestBase
             },
             5);
 
-        Assert.IsNotNull(result.TranslatedFile);
+        Assert.IsNotNull(result.File);
         Assert.IsTrue(result.BilledCharacters > 0);
     }
 
@@ -70,5 +81,44 @@ public class TranslationActionsTests : TestBase
                 },
                 5)
         );
+    }
+
+    [TestMethod]
+    public async Task Translate_file_xliff()
+    {
+        var actions = new TranslationActions(InvocationContext, FileManager);
+
+        // Set up file reference
+        var fileRef = new FileReference { Name = "contentful.html" };
+
+        var result = await actions.TranslateFile(
+            new TranslateFileRequest
+            {
+                File = fileRef,
+                TargetLanguage = "nl"
+            });
+
+        Assert.IsNotNull(result.File);
+        Assert.IsTrue(result.BilledCharacters > 0);
+    }
+
+    [TestMethod]
+    public async Task Translate_file_html()
+    {
+        var actions = new TranslationActions(InvocationContext, FileManager);
+
+        // Set up file reference
+        var fileRef = new FileReference { Name = "contentful.html" };
+
+        var result = await actions.TranslateFile(
+            new TranslateFileRequest
+            {
+                File = fileRef,
+                TargetLanguage = "nl",
+                OutputFileHandling = "original",
+            });
+
+        Assert.IsNotNull(result.File);
+        Assert.IsTrue(result.BilledCharacters > 0);
     }
 }

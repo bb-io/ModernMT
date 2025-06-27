@@ -10,7 +10,7 @@ public class BaseTranslationRequest
 {
     [Display("Source language")]
     [StaticDataSource(typeof(LanguageDataHandler))]
-    public string SourceLanguage { get; set; }
+    public string? SourceLanguage { get; set; }
 
     [Display("Target language")]
     [StaticDataSource(typeof(LanguageDataHandler))]

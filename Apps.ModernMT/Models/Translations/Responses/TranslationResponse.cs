@@ -1,8 +1,9 @@
 ﻿using Blackbird.Applications.Sdk.Common;
+using Blackbird.Applications.SDK.Blueprints.Interfaces.Translate;
 
 namespace Apps.ModernMT.Models.Translations.Responses;
 
-public class TranslationResponse
+public class TranslationResponse : ITranslateTextOutput
 {
     [Display("Translation")]
     public string TranslatedText { get; set; }

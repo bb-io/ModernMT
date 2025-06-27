@@ -8,6 +8,10 @@ using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using MoreLinq;
 using Blackbird.Applications.Sdk.Common.Exceptions;
 using Apps.ModernMT.Actions.Base;
+using Blackbird.Filters.Transformations;
+using Blackbird.Filters.Enums;
+using Blackbird.Filters.Extensions;
+using System.Collections;
 
 namespace Apps.ModernMT.Actions;
 
@@ -15,7 +19,7 @@ namespace Apps.ModernMT.Actions;
 public class TranslationActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient) 
     : BaseActions(invocationContext, fileManagementClient)
 {
-    [Action("Translate", Description = "Translate into specified language")]
+    [Action("Translate text", Description = "Translate a small piece of text into the specified language")]
     public TranslationResponse TranslateIntoLanguage([ActionParameter] TranslationRequest input)
     {
         if (string.IsNullOrEmpty(input.Text))
@@ -28,7 +32,7 @@ public class TranslationActions(InvocationContext invocationContext, IFileManage
             throw new PluginMisconfigurationException("The source language and target language are equal. This is not allowed. Please change the source or target language.");
         }
 
-        var client = new ModernMtClient(Credentials);
+        var client = new ModernMtClient(Credentials);        
         var translation = client.Translate(input.SourceLanguage, input.TargetLanguage, input.Text,
             input.Hints?.Select(long.Parse).ToArray(), input.Context, input.CreateOptions());
 
@@ -43,9 +47,8 @@ public class TranslationActions(InvocationContext invocationContext, IFileManage
         };
     }
 
-    [Action("Translate multiple", Description = "Translate multiple texts into specified language")]
-    public MultipleTranslationResponse TranslateMultiple(
-        [ActionParameter] MultipleTranslationRequest input)
+    [Action("Translate", Description = "Translate file content retrieved from a CMS or file storage. The output can be used in compatible actions")]
+    public async Task<XliffTranslationResponse> TranslateFile([ActionParameter] TranslateFileRequest input)
     {
         if (input.SourceLanguage == input.TargetLanguage)
         {
@@ -53,21 +56,44 @@ public class TranslationActions(InvocationContext invocationContext, IFileManage
         }
 
         var client = new ModernMtClient(Credentials);
-        var translations = client.Translate(input.SourceLanguage, input.TargetLanguage, input.Texts.ToList(),
-            input.Hints?.Select(long.Parse).ToArray(), input.Context, input.CreateOptions());
 
-        return new()
+        var stream = await fileManagementClient.DownloadAsync(input.File);
+        var content = await Transformation.Parse(stream);
+        var segmentTranslations = content
+            .GetSegments()
+            .Where(x => !x.IsIgnorbale && x.IsInitial)
+            .Batch(100)
+            .Process(batch => client.Translate(
+                input.SourceLanguage, 
+                input.TargetLanguage, 
+                batch.Select(x => x.GetSource()).ToList(),
+                input.Hints?.Select(long.Parse).ToArray(), 
+                input.Context, 
+                input.CreateOptions())
+            );
+
+
+        var billedCharacters = 0;
+        foreach(var (segment, translation) in segmentTranslations)
         {
-            Translations = translations.Select(t => new TranslationResponse
-            {
-                TranslatedText = t.TranslationText,
-                ContextVector = t.ContextVector,
-                Characters = t.Characters,
-                BilledCharacters = t.BilledCharacters,
-                DetectedLanguage = t.DetectedLanguage,
-                Alternatives = t.AltTranslations?.ToList(),
-            }),
-        };
+            segment.SetTarget(translation.TranslationText);
+            segment.State = SegmentState.Translated;
+            billedCharacters += translation.BilledCharacters;
+        }
+
+        if (input.OutputFileHandling == null || input.OutputFileHandling == "xliff")
+        {
+            var xliffStream = content.Serialize().ToStream();
+            var fileName = input.File.Name.EndsWith("xliff") || input.File.Name.EndsWith("xlf") ? input.File.Name : input.File.Name + ".xliff";
+            var uploadedFile = await fileManagementClient.UploadAsync(xliffStream, "application/xliff+xml", fileName);
+            return new XliffTranslationResponse { File = uploadedFile, BilledCharacters = billedCharacters };
+        }
+        else
+        {
+            var resultStream = content.Target().Serialize().ToStream();
+            var uploadedFile = await fileManagementClient.UploadAsync(resultStream, input.File.ContentType, input.File.Name);
+            return new XliffTranslationResponse { File = uploadedFile, BilledCharacters = billedCharacters };
+        }
     }
 
     [Action("Translate XLIFF", Description = "Translate an XLIFF 1.2 document into specified language")]
@@ -117,7 +143,7 @@ public class TranslationActions(InvocationContext invocationContext, IFileManage
         var finalFile = await fileManagementClient.UploadAsync(updatedFile, input.File.ContentType, input.File.Name);
         return new XliffTranslationResponse 
         { 
-            TranslatedFile = finalFile, 
+            File = finalFile, 
             BilledCharacters = billedChars 
         };
     }
