@@ -29,9 +29,14 @@ Before you can connect you need to make sure that:
 
 ### Translation
 
-- **Translate text** translates a single text segment into a given language. It can optionally take arguments for glossaries, contexts, hints, and more. See the [ModernMT documentation](https://www.modernmt.com/api/#translate-text) for all the options.
-- **Translate** is used to translate files and other content. Compatible with Blackbird interoperability and can take content directly from your CMS.
-- **Translate XLIFF** Translate an XLIFF 1.2 document into a specified language. Will be deprecated soon.
+- **Translate** Translate interopability compatible files (f.e. from a CMS) in Blackbird interoperability mode. If you're only translating text (strings) then use *Translate text* instead. Advanced settings:
+  - **Output file handling**: If using Blackbird's interoperability mode, this determines the format of the output file. The default Blackbird behavior is to convert to XLIFF for future steps. You can change it to output the original file format (if you don't want to continue language operationts after this step).
+  - **Glossaries**: Select the memories you want to use as glossaries for this translation.
+  - **Hint**: Select the memories you want to use as hints for this translation.
+- **Translate text** translates a single text segment into a given language. It can optionally take arguments for glossaries, contexts, hints, and more. See the [ModernMT documentation](https://www.modernmt.com/api/#translate-text) for all the options. Useful when translating small messages. For larger content and files use *Translate* instead.
+
+To be deprecated: 
+- **Translate XLIFF** Translate an XLIFF 1.2 document into a specified language. Will be deprecated soon once Translate is capabale of handling all XLIFF dialects.
 
 ### Quality estimation
 
