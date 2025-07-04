@@ -100,6 +100,7 @@ public class TranslationActionsTests : TestBase
 
         Assert.IsNotNull(result.File);
         Assert.IsTrue(result.BilledCharacters > 0);
+        Assert.AreEqual("contentful.html.xlf", result.File.Name);
     }
 
     [TestMethod]
@@ -120,5 +121,6 @@ public class TranslationActionsTests : TestBase
 
         Assert.IsNotNull(result.File);
         Assert.IsTrue(result.BilledCharacters > 0);
+        Assert.AreEqual("contentful.html", result.File.Name);
     }
 }
