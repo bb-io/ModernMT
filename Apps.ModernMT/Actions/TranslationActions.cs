@@ -17,7 +17,7 @@ using Blackbird.Filters.Constants;
 
 namespace Apps.ModernMT.Actions;
 
-[ActionList]
+[ActionList("Translation")]
 public class TranslationActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient) 
     : BaseActions(invocationContext, fileManagementClient)
 {

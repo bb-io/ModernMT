@@ -13,7 +13,7 @@ using Blackbird.Applications.Sdk.Utils.Extensions.Files;
 
 namespace Apps.ModernMT.Actions;
 
-[ActionList]
+[ActionList("Memories")]
 public class MemoriesActions : BaseInvocable
 {
     private readonly IFileManagementClient _fileManagementClient;
