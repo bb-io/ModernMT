@@ -9,7 +9,7 @@ using Blackbird.Applications.Sdk.Common.Invocation;
 
 namespace Apps.ModernMT.Actions;
 
-[ActionList]
+[ActionList("Language detection")]
 public class LanguageDetectionActions : BaseInvocable
 {
     private IEnumerable<AuthenticationCredentialsProvider> Creds =>

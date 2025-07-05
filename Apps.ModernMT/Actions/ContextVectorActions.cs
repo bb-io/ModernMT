@@ -8,7 +8,7 @@ using Blackbird.Applications.Sdk.Common.Invocation;
 
 namespace Apps.ModernMT.Actions;
 
-[ActionList]
+[ActionList("Context vectors")]
 public class ContextVectorActions : BaseInvocable
 {
     private IEnumerable<AuthenticationCredentialsProvider> Creds =>
@@ -18,7 +18,7 @@ public class ContextVectorActions : BaseInvocable
     {
     }
 
-    [Action("Get context vector from text", Description = "Analyze a given content, compare it with the memories content, and automatically create a context vector which can be used in the attempt to maximize the translation quality")]
+    [Action("Get context vector from text", Description = "Analyze the given content, compare it with the memories content, and automatically create a context vector which can be used in the attempt to maximize the translation quality")]
     public ContextVectorResponse GetContextVectorFromText([ActionParameter] ContextVectorRequest input)
     {
         var client = new ModernMtClient(Creds);

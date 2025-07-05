@@ -14,7 +14,7 @@ using MoreLinq;
 
 namespace Apps.ModernMT.Actions;
 
-[ActionList]
+[ActionList("Quality estimation")]
 public class QualityActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient) : BaseActions(invocationContext, fileManagementClient)
 {
     [Action("Estimate Quality", Description = "Allows to evaluate the quality of a translation or a list of translations")]

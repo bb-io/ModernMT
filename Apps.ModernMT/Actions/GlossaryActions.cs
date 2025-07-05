@@ -11,7 +11,7 @@ using Blackbird.Applications.Sdk.Glossaries.Utils.Converters;
 
 namespace Apps.ModernMT.Actions;
 
-[ActionList]
+[ActionList("Glossaries")]
 public class GlossaryActions : BaseInvocable
 {
     private IEnumerable<AuthenticationCredentialsProvider> Creds =>
