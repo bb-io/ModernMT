@@ -11,9 +11,9 @@ using Apps.ModernMT.Actions.Base;
 using Blackbird.Filters.Transformations;
 using Blackbird.Filters.Enums;
 using Blackbird.Filters.Extensions;
-using System.Collections;
 using Blackbird.Applications.SDK.Blueprints;
 using Blackbird.Filters.Constants;
+using Apps.ModernMT.Utils;
 
 namespace Apps.ModernMT.Actions;
 
@@ -35,9 +35,17 @@ public class TranslationActions(InvocationContext invocationContext, IFileManage
             throw new PluginMisconfigurationException("The source language and target language are equal. This is not allowed. Please change the source or target language.");
         }
 
-        var client = new ModernMtClient(Credentials);        
-        var translation = client.Translate(input.SourceLanguage, input.TargetLanguage, input.Text,
-            input.Hints?.Select(long.Parse).ToArray(), input.Context, input.CreateOptions());
+        var client = new ModernMtClient(Credentials);
+        var translation = ErrorHandler.ExecuteWithErrorHandling(() => 
+            client.Translate(
+                input.SourceLanguage,
+                input.TargetLanguage,
+                input.Text,
+                input.Hints?.Select(long.Parse).ToArray(),
+                input.Context,
+                input.CreateOptions()
+            )
+        );
 
         return new()
         {
