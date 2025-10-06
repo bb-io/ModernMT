@@ -38,6 +38,21 @@ public class TranslationActionsTests : TestBase
     }
 
     [TestMethod]
+    public void TranslateIntoLanguage_SameDetectedLanguage_ThrowsMisconfigurationException()
+    {
+        // Arrange
+        var actions = new TranslationActions(InvocationContext, FileManager);
+        var request = new TranslationRequest 
+        { 
+            Text = "Feedback: 予約分の売上の把握",   // detects as English smh
+            TargetLanguage = "en" 
+        };
+
+        // Act & Assert
+        Throws.MisconfigurationException(() => actions.TranslateIntoLanguage(request));
+    }
+
+    [TestMethod]
     public void TranslateIntoLanguage_EmptyText_ThrowsMisconfigurationException()
     {
         var actions = new TranslationActions(InvocationContext, FileManager);
