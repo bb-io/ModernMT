@@ -1,5 +1,6 @@
 ﻿using Apps.ModernMT.Actions;
 using Apps.ModernMT.Models.Translations.Requests;
+using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Files;
 using Tests.ModernMT.Base;
 
@@ -38,18 +39,18 @@ public class TranslationActionsTests : TestBase
     }
 
     [TestMethod]
-    public void TranslateIntoLanguage_SameDetectedLanguage_ThrowsMisconfigurationException()
+    public void TranslateIntoLanguage_SameDetectedLanguage_ThrowsApplicationException()
     {
         // Arrange
         var actions = new TranslationActions(InvocationContext, FileManager);
         var request = new TranslationRequest 
         { 
             Text = "Feedback: 予約分の売上の把握",   // detects as English smh
-            TargetLanguage = "en" 
+            TargetLanguage = "en"
         };
 
         // Act & Assert
-        Throws.MisconfigurationException(() => actions.TranslateIntoLanguage(request));
+        Throws.ApplicationException(() => actions.TranslateIntoLanguage(request));
     }
 
     [TestMethod]

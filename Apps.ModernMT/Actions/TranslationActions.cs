@@ -13,7 +13,7 @@ using Blackbird.Filters.Enums;
 using Blackbird.Filters.Extensions;
 using Blackbird.Applications.SDK.Blueprints;
 using Blackbird.Filters.Constants;
-using ModernMT.Model;
+using Apps.ModernMT.Utils;
 
 namespace Apps.ModernMT.Actions;
 
@@ -36,22 +36,16 @@ public class TranslationActions(InvocationContext invocationContext, IFileManage
         }
 
         var client = new ModernMtClient(Credentials);
-        Translation translation;
-        try
-        {
-            translation = client.Translate(
+        var translation = ErrorHandler.ExecuteWithErrorHandling(() => 
+            client.Translate(
                 input.SourceLanguage,
                 input.TargetLanguage,
                 input.Text,
                 input.Hints?.Select(long.Parse).ToArray(),
                 input.Context,
                 input.CreateOptions()
-            );
-        }
-        catch (Exception ex)
-        {
-            throw new PluginMisconfigurationException(ex.Message);
-        }
+            )
+        );
 
         return new()
         {
