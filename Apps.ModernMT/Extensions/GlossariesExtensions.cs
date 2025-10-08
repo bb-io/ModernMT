@@ -1,5 +1,5 @@
 using System.Text;
-using Blackbird.Applications.Sdk.Glossaries.Utils.Models.Dtos;
+using Blackbird.Applications.Sdk.Glossaries.Utils.Dtos;
 
 namespace Apps.ModernMT.Extensions;
 

@@ -31,7 +31,7 @@ public class GlossaryActions : BaseInvocable
         using var client = new ModernMtRestClient();
 
         await using var glossaryStream = await _fileManagementClient.DownloadAsync(input.File);
-        var blackbirdGlossary = await glossaryStream.ConvertFromTBX();
+        var blackbirdGlossary = await glossaryStream.ConvertFromTbx();
         var csv = blackbirdGlossary.ToModernMtCsv();
 
         using var request = new ModernMtRestRequest($"/memories/{input.MemoryId}/glossary", HttpMethod.Post, Creds);
